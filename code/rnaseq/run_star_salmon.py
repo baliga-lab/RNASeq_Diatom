@@ -232,7 +232,7 @@ def create_genome_index(genome_dir, genome_fasta):
 
 ####################### Running the Pipeline ###############################
 
-def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_gff):
+def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_gff, args):
     folder_count = 1
 
     # Loop through each data folder
@@ -349,4 +349,4 @@ if __name__ == '__main__':
     genome_gff = "%s/past_smic.genome.annotation.gff3" % args.genomedir
 
     create_genome_index(args.genomedir, genome_fasta)
-    data_trimmed_dir,fastqc_dir,results_dir = run_pipeline(data_folder, args.outdir, args.genomedir, genome_fasta, genome_gff)
+    data_trimmed_dir,fastqc_dir,results_dir = run_pipeline(data_folder, args.outdir, args.genomedir, genome_fasta, genome_gff, args)
