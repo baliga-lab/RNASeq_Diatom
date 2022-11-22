@@ -18,7 +18,7 @@ Starting point point for the pipeline
   * salmon (https://combine-lab.github.io/salmon/)
   * samtools (http://www.htslib.org/)
   * htseq (https://github.com/htseq/htseq)
-  * Picard tools (https://broadinstitute.github.io/picard/)
+  * [Picard tools (https://broadinstitute.github.io/picard/)]
   * Python 3 (> 3.10)
 
 ## Installation

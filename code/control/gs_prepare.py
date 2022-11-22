@@ -31,28 +31,45 @@ def create_dirs(config):
         os.makedirs(config["output_dir"])
 
 
-def check_salmon():
+def __check_command(command, num_info_components=1, check_version=None, version_switch='--version',
+                    multiline=False):
+    """Generic command checker, can check for different version info formats and
+    restrict version numbers
+    """
     try:
-        print("checking for salmon... ", end="")
-        compl_proc = subprocess.run(["salmon", "-v"], check=True, capture_output=True)
-        progname, version = compl_proc.stdout.decode('utf-8').strip().split()
+        print("checking for %s... " % command, end="")
+        compl_proc = subprocess.run([command, version_switch], check=True, capture_output=True)
+        if multiline:
+            info_string = compl_proc.stdout.decode('utf-8').split('\n')[0].strip()
+        else:
+            info_string = compl_proc.stdout.decode('utf-8').strip()
+        if num_info_components == 2:
+            progname, version = info_string.split()
+        else:
+            version = info_string
+
         print("(found version '%s') ..." % version, end="")
-        if version != "0.13.1":
-            sys.exit("Unsupported version %s. Currently, only salmon 0.13.1 is supported" % version)
+        if check_version is not None and check_version != version:
+            sys.exit("Unsupported version %s. Currently, only %s %s is supported" % (command, check_version))
         print("done")
     except FileNotFoundError:
-        sys.exit("Can not find salmon (not installed or not in PATH)")
+        sys.exit("Can not find %s (not installed or not in PATH)" % command)
+
+
+def check_salmon():
+    __check_command("salmon", num_info_components=2, check_version="0.13.1")
 
 
 def check_star():
-    try:
-        print("checking for STAR... ", end="")
-        compl_proc = subprocess.run(["STAR", "--version"], check=True, capture_output=True)
-        version = compl_proc.stdout.decode('utf-8').strip()
-        print("(found version '%s') ..." %  version, end="")
-        print("done")
-    except FileNotFoundError:
-        sys.exit("Can not find STAR (not installed or not in PATH)")
+    __check_command("STAR")
+
+
+def check_htseq():
+    __check_command("htseq-count")
+
+
+def check_samtools():
+    __check_command("samtools", multiline=True)
 
 
 if __name__ == '__main__':
@@ -63,6 +80,8 @@ if __name__ == '__main__':
 
     check_star()
     check_salmon()
+    check_htseq()
+    check_samtools()
     
     with open(args.configfile) as infile:
         config = json.load(infile)
