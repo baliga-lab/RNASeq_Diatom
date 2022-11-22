@@ -23,8 +23,8 @@ Starting point point for the pipeline
 
 ## Installation
 
-The commands in this repository can be used right away. Assume the
-repository is in <yourpath>/Global_Search:
+The commands in this repository can be used right away. Assume the 
+repository is in `<yourpath>/Global_Search`. Add this to the .bashrc
 
 ```
 export GS_HOME=<yourpath/Global_Search>
