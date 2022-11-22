@@ -5,4 +5,9 @@ if [ "$#" -ne 1 ] ; then
 	exit 1
 fi
 
-./gs_prepare.py $1
+if [ -z "$GS_HOME" ]; then
+	echo "Variable GS_HOME is not set. Please set to Global_Search repository path."
+	exit 1
+fi
+
+$GS_HOME/code/control/gs_prepare.py $1

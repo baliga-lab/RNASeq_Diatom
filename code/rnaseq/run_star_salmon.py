@@ -248,8 +248,8 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
     DATA_SEARCH1 = '%s/*_concat_fixed_1.fq*' % data_folder # test
     #DATA_SEARCH1 = '%s/*_1.fq*' % data_folder
     print("SEARCHING FIRST PAIRS IN: ", DATA_SEARCH1)
-    first_pair_files = glob.glob('%s/*_concat_fixed_1.fq*' % (data_folder)) # testing concat
-    #first_pair_files = glob.glob('%s/*_1.fq*' % (data_folder))
+    #first_pair_files = glob.glob('%s/*_concat_fixed_1.fq*' % (data_folder)) # testing concat
+    first_pair_files = glob.glob('%s/*_1.fq*' % (data_folder))
     #second_pair_files = glob.glob('%s/_R2*.fastq*' %(data_folder))
 
     # Program specific results directories
