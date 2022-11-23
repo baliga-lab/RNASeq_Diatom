@@ -8,8 +8,10 @@ import json
 TEMPLATE = """#!/bin/bash
 
 #SBATCH -J star_salmon_{{genome}}
-#SBATCH -o logs/"%j".out
-#SBATCH -e logs/"%j".out
+#SBATCH -o /proj/omics4tb2/wwu/slurm_logs/"%j".out
+#SBATCH -e /proj/omics4tb2/wwu/slurm_logs/"%j".out
+
+{{sbatch_options}}
 
 data_folder=$1
 star_prefix="star_{{star_options.outFilterMismatchNmax}}_{{star_options.outFilterMismatchNoverLmax}}_{{star_options.outFilterScoreMinOverLread}}_{{star_options.outFilterMatchNmin}}{{dedup_prefix}}"
@@ -22,6 +24,12 @@ $GS_HOME/code/rnaseq/run_star_salmon_old.py {{genome_dir}} {{input_dir}} $data_f
 
 DESCRIPTION = """make_star_salmon_job.py - Create STAR Salmon job file for Slurm"""
 
+def make_sbatch_options(config):
+    result = ""
+    for option in config['sbatch_options']['star_salmon']:
+        result += "#SBATCH %s\n" % option
+    return result
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=DESCRIPTION)    
@@ -33,6 +41,8 @@ if __name__ == '__main__':
     templ = jinja2.Template(TEMPLATE)
     genome = os.path.basename(os.path.normpath(config['genome_dir']))
     config['genome'] = genome
+    config['sbatch_options'] = make_sbatch_options(config)
+
     config['dedup_prefix'] = '_dedup' if config['deduplicate_bam_files'] else ''
     config['dedup_option'] = '--dedup' if config['deduplicate_bam_files'] else ''
     print(templ.render(config))

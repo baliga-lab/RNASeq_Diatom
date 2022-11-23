@@ -10,4 +10,6 @@ if [ -z "$GS_HOME" ]; then
 	exit 1
 fi
 
-$GS_HOME/code/control/gs_prepare.py $1
+tmpfile=$(mktemp /tmp/slurm_job.XXXXXX)
+$GS_HOME/code/control/gs_prepare.py $1 && $GS_HOME/code/rnaseq/make_star_salmon_job.py $1 > $tmpfile && $GS_HOME/code/control/gs_submit.py $tmpfile $1
+
