@@ -11,9 +11,14 @@
      "outFilterMatchNmin": 0
    },
    "sbatch_options": {
-      "conda_env": "STAR",
-      "star_salmon": [
-        "--mem=8G"
-      ]
+      "star_salmon": {
+        "options": [
+          "--mem=8G"
+        ],
+	"extras": [
+	  "source ~/anaconda3/etc/profile.d/conda.sh",
+          "conda activate STAR"
+	]
+     }
    }
 }
