@@ -11,6 +11,7 @@ TEMPLATE = """#!/bin/bash
 #SBATCH -o /proj/omics4tb2/wwu/slurm_logs/"%j".out
 #SBATCH -e /proj/omics4tb2/wwu/slurm_logs/"%j".out
 
+{{conda_activate}}
 {{sbatch_options}}
 
 data_folder=$1
@@ -30,6 +31,15 @@ def make_sbatch_options(config):
         result += "#SBATCH %s\n" % option
     return result
 
+def make_conda_activate(config):
+    try:
+		result = config['sbatch_options']['conda_env']
+		if result != '':
+			result = 'conda activate %s' % result
+	except:
+		result = ''
+	return result
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=DESCRIPTION)    
@@ -42,6 +52,7 @@ if __name__ == '__main__':
     genome = os.path.basename(os.path.normpath(config['genome_dir']))
     config['genome'] = genome
     config['sbatch_options'] = make_sbatch_options(config)
+    config['conda_activate'] = make_conda_activate(config)
 
     config['dedup_prefix'] = '_dedup' if config['deduplicate_bam_files'] else ''
     config['dedup_option'] = '--dedup' if config['deduplicate_bam_files'] else ''

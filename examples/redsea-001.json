@@ -11,6 +11,7 @@
      "outFilterMatchNmin": 0
    },
    "sbatch_options": {
+      "conda_env": "STAR",
       "star_salmon": [
         "--mem=8G"
       ]
