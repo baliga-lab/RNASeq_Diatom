@@ -32,3 +32,31 @@ export PATH=$PATH:Global_Search/code/bin
 ```
 
 ## Configuration format description
+
+Configuration files are in JSON format of the following form
+
+```
+{
+  "input_dir": <input directory>,
+  "genome_dir": <input directory>,
+  "genome_gff": <GFF file>,
+  "includes": [<directory name],
+  "deduplicate_bam_files": false,
+  "star_options": {
+     "outFilterMismatchNmax": 10,
+     "outFilterMismatchNoverLmax": 0.3,
+     "outFilterScoreMinOverLread": 0.66,
+     "outFilterMatchNmin": 0
+  },
+  "sbatch_options": {
+     <pipeline_step_name>: {
+       "options": [
+          <sbatch options>
+       ],
+       "extras": [
+          <additional lines for slurm job script>
+       ]
+     }
+   }
+}
+```
