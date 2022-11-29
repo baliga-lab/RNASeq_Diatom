@@ -5,7 +5,7 @@ Script to check parameters and prepare for submission
 """
 import argparse
 import json
-import os, sys, subprocess
+import os, sys, glob, subprocess
 
 
 DESCRIPTION = """gs_prepare.py - prepare data for workflow submission"""
@@ -15,6 +15,16 @@ def check_params(config):
     print("checking integrity of parameters...", end="")
     if not os.path.exists(config["input_dir"]):
         sys.exit("Input directory '%s' does not exist" % config["input_dir"])
+    if not os.path.exists(config["genome_dir"]):
+        sys.exit("Genome directory '%s' does not exist" % config["genome_dir"])
+        genome_fasta = glob.glob('%s/*.fasta' % (args.genomedir))
+        if len(genome_fasta) == 0:
+            sys.exit("Genome directory '%s' does not contain any FASTA files" % config["genome_dir"])
+    try:
+        if not os.path.exists(config["genome_gff"]):
+            print("WARNING: Genome GFF '%s' does not exist (htseq will be skipped)" % config["genome_gff"])
+    except:
+        print("WARNING: genome_gff not specified (htseq will be skipped)")
 
     if len(config["includes"]) > 0:
         # check the existence of the included directories

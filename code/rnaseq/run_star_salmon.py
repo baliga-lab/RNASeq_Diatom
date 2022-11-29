@@ -313,7 +313,8 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
         run_salmon_quant(results_dir, folder_name, genome_fasta)
 
         # Run HTSeq count
-        run_htseq(htseq_dir, results_dir, folder_name, genome_gff)
+        if not genome_gff is None and os.path.exists(genome_gff):
+            run_htseq(htseq_dir, results_dir, folder_name, genome_gff)
 
         folder_count += 1
 
@@ -327,6 +328,7 @@ if __name__ == '__main__':
     parser.add_argument('dataroot', help="parent of input directory")
     parser.add_argument('indir', help="input directory (R<somenumber>)")
     parser.add_argument('outdir', help='output directory')
+    parser.add_argument('--genome_gff', help='genome GFF file')
     parser.add_argument('--dedup', action='store_true', help='should we deduplicate bam files (True or False)')
     parser.add_argument('--starPrefix', help="STAR output file name prefix")
     parser.add_argument('--salmonPrefix', help="Salmon output folder name prefix")
@@ -344,9 +346,8 @@ if __name__ == '__main__':
     now = datetime.datetime.now()
     timeprint = now.strftime("%Y-%m-%d %H:%M")
     data_folder = "%s/%s" % (args.dataroot, args.indir)
-
     genome_fasta = glob.glob('%s/*.fasta' % (args.genomedir))[0]
-    genome_gff = "%s/past_smic.genome.annotation.gff3" % args.genomedir
 
     create_genome_index(args.genomedir, genome_fasta)
-    data_trimmed_dir,fastqc_dir,results_dir = run_pipeline(data_folder, args.outdir, args.genomedir, genome_fasta, genome_gff, args)
+    data_trimmed_dir,fastqc_dir,results_dir = run_pipeline(data_folder, args.outdir, args.genomedir, genome_fasta,
+        args.genome_gff, args)

@@ -182,7 +182,8 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
         run_salmon_quant(results_dir, folder_name, genome_fasta)
 
         # Run HTSeq count
-        run_htseq(htseq_dir, results_dir, folder_name, genome_gff)
+        if not genome_gff is None and os.path.exists(genome_gff):
+            run_htseq(htseq_dir, results_dir, folder_name, genome_gff)
 
         folder_count += 1
 
@@ -196,14 +197,13 @@ if __name__ == '__main__':
     parser.add_argument('dataroot', help="parent of input directory")
     parser.add_argument('indir', help="input directory (R<somenumber>)")
     parser.add_argument('outdir', help='output directory')
+    parser.add_argument('--genome_gff', help="genome GFF file")
     args = parser.parse_args()
 
     now = datetime.datetime.now()
     timeprint = now.strftime("%Y-%m-%d %H:%M")
     data_folder = "%s/%s" % (args.dataroot, args.indir)
-
-    genome_fasta = "%s/Past_Smic_merged_CDS_suffixed.fasta" % args.genomedir
-    genome_gff = "%s/past_smic.genome.annotation.gff3" % args.genomedir
+    genome_fasta = glob.glob('%s/*.fasta' % (args.genomedir))[0]
 
     create_genome_index(args.genomedir, genome_fasta)
-    data_trimmed_dir,fastqc_dir,results_dir = run_pipeline(data_folder, args.outdir, args.genomedir, genome_fasta, genome_gff)
+    data_trimmed_dir,fastqc_dir,results_dir = run_pipeline(data_folder, args.outdir, args.genomedir, genome_fasta, args.genome_gff)

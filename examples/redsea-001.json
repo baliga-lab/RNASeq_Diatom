@@ -2,6 +2,7 @@
    "input_dir": "/proj/omics4tb2/wwu/GlobalSearch.old/Pilot_Fail/X204SC21081158-Z01-F002/raw_data",
    "genome_dir": "/proj/omics4tb2/wwu/GlobalSearch.old/reference_genomes/past_smic",
    "output_dir": "/proj/omics4tb2/wwu/Global_Search/redsea-output-001",
+   "genome_gff": "",
    "includes": ["R1"],
    "deduplicate_bam_files": false,
    "star_options": {
