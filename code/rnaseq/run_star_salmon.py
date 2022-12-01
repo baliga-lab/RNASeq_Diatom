@@ -194,7 +194,7 @@ def run_salmon_quant(results_dir, folder_name, genome_fasta):
     print
     print('\033[33mRunning salmon-quant! \033[0m')
     # check if we are performing deduplication
-    if args.dedupe:
+    if args.dedup:
         salmon_input = '%sNoSingletonCollated.out.bam' % (outfile_prefix)
     else:
         salmon_input = '%sAligned.out.bam' % (outfile_prefix)
