@@ -76,7 +76,7 @@ def trim_galore(first_pair_file, second_pair_file, folder_name, sample_id, file_
     print
     print( '++++++ Trimgalore Command:', cmd)
     print
-    #os.system(cmd)
+    os.system(cmd)
 
 
 ####################### Collect trimmed data files ###############################
@@ -120,7 +120,7 @@ def run_star(first_pair_group, second_pair_group, results_dir, star_input_files,
     cmd = 'STAR --genomeDir %s %s --readFilesIn %s %s --outFileNamePrefix %s' % (genome_dir, star_options,first_pair_group, second_pair_group, outfile_prefix)
 
     print('STAR run command:%s' %cmd)
-    #os.system(cmd)
+    os.system(cmd)
 
 ####################### Deduplication ###############################
 def dedup(results_dir,folder_name):
@@ -155,19 +155,19 @@ def dedup(results_dir,folder_name):
     ## Samtools based BAM duplicate removal
     print()
     print('samtools fixmate run command:%s' %fixmate_cmd)
-    #os.system(fixmate_cmd)
+    os.system(fixmate_cmd)
 
     print()
     print('samtools sort run command:%s' %sort_cmd)
-    #os.system(sort_cmd)
+    os.system(sort_cmd)
 
     print()
     print('samtools mark diuplicates run command:%s' %markdup_cmd)
-    #os.system(markdup_cmd)
+    os.system(markdup_cmd)
 
     print()
     print('samtools rm singletons run command:%s' %rmsingletons_cmd)
-    #os.system(rmsingletons_cmd)
+    os.system(rmsingletons_cmd)
 
     ## STAR based BAM duplicate removal
     # Mark duplicates with STAR
@@ -194,7 +194,7 @@ def run_salmon_quant(results_dir, folder_name, genome_fasta):
     print
     print('\033[33mRunning salmon-quant! \033[0m')
     # check if we are performing deduplication
-    if args.dedup == True:
+    if args.dedupe:
         salmon_input = '%sNoSingletonCollated.out.bam' % (outfile_prefix)
     else:
         salmon_input = '%sAligned.out.bam' % (outfile_prefix)
@@ -213,7 +213,7 @@ def run_htseq(htseq_dir, results_dir, folder_name, genome_gff):
     cmd = 'htseq-count -s "reverse" -t "exon" -i "Parent" -r pos --max-reads-in-buffer 60000000 -f bam %s %s > %s/%s_htseqcounts.txt' %(htseq_input,
                                                                                                                                         genome_gff,htseq_dir,folder_name)
     print('htseq-count run command:%s' %cmd)
-    #os.system(cmd)
+    os.system(cmd)
 
 ####################### Create STAR index ###############################
 ### This should be specific for the organism
@@ -245,11 +245,12 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
     # Get the list of first file names in paired end sequences
     ## We need to make sure we capture fastq data files
     
-    DATA_SEARCH1 = '%s/*_concat_fixed_1.fq*' % data_folder # test
-    #DATA_SEARCH1 = '%s/*_1.fq*' % data_folder
+    #DATA_SEARCH1 = '%s/*_concat_fixed_1.fq*' % data_folder # test
+    DATA_SEARCH1 = '%s/*_1.fq*' % data_folder
     print("SEARCHING FIRST PAIRS IN: ", DATA_SEARCH1)
     #first_pair_files = glob.glob('%s/*_concat_fixed_1.fq*' % (data_folder)) # testing concat
-    first_pair_files = glob.glob('%s/*_1.fq*' % (data_folder))
+    #first_pair_files = glob.glob('%s/*_1.fq*' % (data_folder))
+    first_pair_files = glob.glob(DATA_SEARCH1)
     #second_pair_files = glob.glob('%s/_R2*.fastq*' %(data_folder))
 
     # Program specific results directories
@@ -258,7 +259,6 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
 
     results_dir = "%s/%s/results_STAR_Salmon" %(results_folder, folder_name)
     htseq_dir = "%s/htseqcounts" % (results_dir)
-    
 
     # Run create directories function to create directory structure
     create_dirs(data_trimmed_dir, fastqc_dir, results_dir, htseq_dir)
@@ -287,24 +287,21 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
         print("Lane: %s" %(lane))
         sample_id = re.split('.fq|.fq.gz', first_file_name)[0]
         print("sample_id: %s" %(sample_id))
-        #sys.exit()
 
-        order_fq(first_pair_file, second_pair_file, data_folder, sample_id)
-        #sys.exit()
+        #order_fq(first_pair_file, second_pair_file, data_folder, sample_id)
 
         # Run TrimGalore
         trim_galore(first_pair_file,second_pair_file,folder_name,sample_id,file_ext,data_trimmed_dir,fastqc_dir)
         file_count = file_count + 1
-        #sys.exit()
 
         # Collect Trimmed data for input into STAR
         first_pair_group,second_pair_group,star_input_files = collect_trimmed_data(data_trimmed_dir,file_ext)
 
         # Run STAR
         run_star(first_pair_group,second_pair_group,results_dir,star_input_files, folder_name, genome_dir)
-        #sys.exit()
+
         # Run Deduplication
-        if args.dedup == True:
+        if args.dedup:
             print
             print('\033[33mRunning Deduplication: \033[0m')
             dedup(results_dir,folder_name)
@@ -339,8 +336,6 @@ if __name__ == '__main__':
 
     #### Add argument for running star in two pass mode
     ### Kate to contribute relevant code
-    
-
     args = parser.parse_args()
 
     now = datetime.datetime.now()
