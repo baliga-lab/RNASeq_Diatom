@@ -7,6 +7,7 @@
 ############################################################
 import glob, sys, os, string, datetime, re
 import argparse
+import subprocess
 
 DESCRIPTION = """run_STAR_SALMON.py - run STAR and Salmon"""
 
@@ -35,28 +36,28 @@ def order_fq(first_pair_file, second_pair_file, data_folder, sample_id):
     print
     print( '++++++  FastqToSam Command for 1st File:', cmd1)
     print
-    #os.system(cmd1)
+    os.system(cmd1)
 
     # Convert 2nd file to SAM by using picard FastqToSam tool
     cmd2 = 'picard FastqToSam F1=%s O=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_unaligned_reads_2.sam SM=%s' %(second_pair_file, new_sample_id,new_sample_id,new_sample_id)
     print
     print( '++++++  FastqToSam Command for 2nd File:', cmd2)
     print
-    #os.system(cmd2)
+    os.system(cmd2)
 
 # Merge Sam files
     cmd3 = 'picard MergeSamFiles I=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_unaligned_reads_1.sam I=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_unaligned_reads_2.sam O=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_merged_reads.sam SORT_ORDER=queryname' %(new_sample_id,new_sample_id,new_sample_id,new_sample_id,new_sample_id,new_sample_id)
     print
     print( '++++++  MergeSamFiles Command:', cmd3)
     print
-    #os.system(cmd3)
+    os.system(cmd3)
 
     # UnMerge Sam files to fastq files
     cmd4 = 'picard SamToFastq I=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_merged_reads.sam FASTQ=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_reordered_1.fastq SECOND_END_FASTQ=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_reordered_2.fastq UNPAIRED_FASTQ=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_reordered_unpaired.fastq' %(new_sample_id,new_sample_id,new_sample_id,new_sample_id,new_sample_id,new_sample_id,new_sample_id,new_sample_id)
     print
     print( '++++++  UnMergeSamFiles Command:', cmd4)
     print
-    #os.system(cmd4)
+    os.system(cmd4)
 
 
 ####################### Trimgalore for quality and trimming ###############################
@@ -72,10 +73,18 @@ def trim_galore(first_pair_file, second_pair_file, folder_name, sample_id, file_
     if not os.path.exists('%s' %(fastqc_dir)):
         os.makedirs('%s' %(fastqc_dir))
     # run Command
-    cmd = 'trim_galore --fastqc_args "--outdir %s/" --paired --output_dir %s/ %s %s' %(fastqc_dir,data_trimmed_dir,first_pair_file, second_pair_file)
+    #cmd = 'trim_galore --fastqc_args "--outdir %s/" --paired --output_dir %s/ %s %s' %(fastqc_dir,data_trimmed_dir,first_pair_file, second_pair_file)
+    command = ['trim_galore',
+                '--fastqc_args "--outdir %s/"' % fastqc_dir,
+                '--paired',
+                '--output_dir', '%s/' % data_trimmed_dir,
+                first_pair_file, second_pair_file]
+    cmd = ' '.join(command)
     print
     print( '++++++ Trimgalore Command:', cmd)
     print
+    # TODO: check by subprocess.run() does not work here !!
+    #compl_proc = subprocess.run(command, check=True, capture_output=False)
     os.system(cmd)
 
 
@@ -114,7 +123,7 @@ def run_star(first_pair_group, second_pair_group, results_dir, star_input_files,
     print('\033[33mRunning STAR! \033[0m')
 
     outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
-    
+    # WW:these are different options than in _old !!! also outfile_prefix !!!!
     star_options ="--runThreadN 32 --outSAMattributes All --genomeLoad LoadAndKeep --outFilterType Normal  --outSAMstrandField intronMotif --outFilterIntronMotifs RemoveNoncanonical --outSAMtype BAM Unsorted --limitBAMsortRAM 5784458574 --readFilesCommand zcat --outReadsUnmapped Fastx --outFilterMismatchNmax %s --outFilterMismatchNoverLmax %s --outFilterScoreMinOverLread %s --outFilterMatchNmin %s" % (args.outFilterMismatchNmax, args.outFilterMismatchNoverLmax,args.outFilterScoreMinOverLread, args.outFilterMatchNmin)
 
     cmd = 'STAR --genomeDir %s %s --readFilesIn %s %s --outFileNamePrefix %s' % (genome_dir, star_options,first_pair_group, second_pair_group, outfile_prefix)
@@ -122,7 +131,7 @@ def run_star(first_pair_group, second_pair_group, results_dir, star_input_files,
     print('STAR run command:%s' %cmd)
     os.system(cmd)
 
-####################### Deduplication ###############################
+####################### Deduplication (not in _old) ###############################
 def dedup(results_dir,folder_name):
     print
     print('\033[33mRunning Deduplication! \033[0m')
@@ -138,9 +147,13 @@ def dedup(results_dir,folder_name):
     
     
     # Add ms and MC tags for markdup to use later:
-    fixmate_cmd = 'samtools fixmate -m %s %s' %(aligned_bam,fixmate_bam)
+    #fixmate_cmd = 'samtools fixmate -m %s %s' %(aligned_bam,fixmate_bam)
+    fixmate_command = ['samtools', 'fixmate', '-m', aligned_bam, fixmate_bam]
+    fixmate_cmd = ' '.join(fixmate_command)
     # position order
-    sort_cmd = 'samtools sort -o %s %s' %(ordered_bam,fixmate_bam)
+    #sort_cmd = 'samtools sort -o %s %s' %(ordered_bam,fixmate_bam)
+    sort_command = ['samtools', 'sort', '-o', ordered_bam, fixmate_bam]
+    sort_cmd = ' '.join(sort_command)
     # mark duplicates
     markdup_cmd = 'samtools markdup -r -s %s %s' %(ordered_bam,markdup_bam)
     # removesingletons
@@ -155,11 +168,13 @@ def dedup(results_dir,folder_name):
     ## Samtools based BAM duplicate removal
     print()
     print('samtools fixmate run command:%s' %fixmate_cmd)
-    os.system(fixmate_cmd)
+    #os.system(fixmate_cmd)
+    compl_proc = subprocess.run(fixmate_command, check=True, capture_output=False)
 
     print()
     print('samtools sort run command:%s' %sort_cmd)
-    os.system(sort_cmd)
+    compl_proc = subprocess.run(sort_command, check=True, capture_output=False)
+    #os.system(sort_cmd)
 
     print()
     print('samtools mark diuplicates run command:%s' %markdup_cmd)
@@ -187,6 +202,7 @@ def dedup(results_dir,folder_name):
 
 
 ####################### Run Salmon Count ###############################
+# WW: Check the names of the input files they will be different from _out
 def run_salmon_quant(results_dir, folder_name, genome_fasta):
     outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
     print(outfile_prefix)
@@ -219,7 +235,14 @@ def run_htseq(htseq_dir, results_dir, folder_name, genome_gff):
 ### This should be specific for the organism
 ### Use the equation file maybe another script to create references
 def create_genome_index(genome_dir, genome_fasta):
-    index_cmd = 'STAR --runMode genomeGenerate --runThreadN 32 --genomeDir %s --genomeFastaFiles %s --genomeChrBinNbits 16 --genomeSAindexNbases 12'% (genome_dir,genome_fasta)
+    index_command = ['STAR', '--runMode', 'genomeGenerate',
+                     '--runThreadN', '32',
+                     '--genomeDir', genome_dir,
+                     '--genomeFastaFiles', genome_fasta,
+                     '--genomeChrBinNbits', '16',
+                     '--genomeSAindexNbases', '12']
+    #index_cmd = 'STAR --runMode genomeGenerate --runThreadN 32 --genomeDir %s --genomeFastaFiles %s --genomeChrBinNbits 16 --genomeSAindexNbases 12'% (genome_dir,genome_fasta)
+    index_cmd = ' '.join(index_command)
     print(index_cmd)
 
     print ("\033[34m %s Indexing genome... \033[0m")
@@ -227,7 +250,8 @@ def create_genome_index(genome_dir, genome_fasta):
         print ('Genome indexes exist. Not creating!')
     else:
         print ('Creating genome indexes')
-        os.system(index_cmd)
+        #os.system(index_cmd)
+        compl_proc = subprocess.run(index_command, check=True, capture_output=False)
 
 
 ####################### Running the Pipeline ###############################
@@ -244,12 +268,8 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
 
     # Get the list of first file names in paired end sequences
     ## We need to make sure we capture fastq data files
-    
-    #DATA_SEARCH1 = '%s/*_concat_fixed_1.fq*' % data_folder # test
     DATA_SEARCH1 = '%s/*_1.fq*' % data_folder
     print("SEARCHING FIRST PAIRS IN: ", DATA_SEARCH1)
-    #first_pair_files = glob.glob('%s/*_concat_fixed_1.fq*' % (data_folder)) # testing concat
-    #first_pair_files = glob.glob('%s/*_1.fq*' % (data_folder))
     first_pair_files = glob.glob(DATA_SEARCH1)
     #second_pair_files = glob.glob('%s/_R2*.fastq*' %(data_folder))
 
