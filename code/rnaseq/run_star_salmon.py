@@ -30,7 +30,7 @@ def order_fq(first_pair_file, second_pair_file, data_folder, sample_id):
     print
     print ("\033[34m Running Order Fq \033[0m")
     new_sample_id = sample_id.split("_")[0]
-    
+
     # Convert 1st file to SAM by using picard FastqToSam tool
     cmd1 = 'picard FastqToSam F1=%s O=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_unaligned_reads_1.sam SM=%s' %(first_pair_file, new_sample_id,new_sample_id,new_sample_id)
     print
@@ -98,7 +98,6 @@ def collect_trimmed_data(data_trimmed_dir, file_ext):
         first_pair_trimmed = glob.glob('%s/*_val_1.fq'%(data_trimmed_dir))
         second_pair_trimmed = glob.glob('%s/*_val_2.fq'%(data_trimmed_dir))
     print('Trimmed Files:\n 1st:%s \n 2nd:%s' %(first_pair_trimmed,second_pair_trimmed))
-    print
     first_pair_group = ' '.join(first_pair_trimmed)
     second_pair_group = ' '.join(second_pair_trimmed)
     pair_files = []
@@ -119,21 +118,40 @@ def collect_trimmed_data(data_trimmed_dir, file_ext):
 
 def run_star(first_pair_group, second_pair_group, results_dir, star_input_files,
              folder_name, genome_dir):
-    print
     print('\033[33mRunning STAR! \033[0m')
 
     outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
     # WW:these are different options than in _old !!! also outfile_prefix !!!!
-    star_options ="--runThreadN 32 --outSAMattributes All --genomeLoad LoadAndKeep --outFilterType Normal  --outSAMstrandField intronMotif --outFilterIntronMotifs RemoveNoncanonical --outSAMtype BAM Unsorted --limitBAMsortRAM 5784458574 --readFilesCommand zcat --outReadsUnmapped Fastx --outFilterMismatchNmax %s --outFilterMismatchNoverLmax %s --outFilterScoreMinOverLread %s --outFilterMatchNmin %s" % (args.outFilterMismatchNmax, args.outFilterMismatchNoverLmax,args.outFilterScoreMinOverLread, args.outFilterMatchNmin)
+    #star_options ="--runThreadN 32 --outSAMattributes All --genomeLoad LoadAndKeep --outFilterType Normal  --outSAMstrandField intronMotif --outFilterIntronMotifs RemoveNoncanonical --outSAMtype BAM Unsorted --limitBAMsortRAM 5784458574 --readFilesCommand zcat --outReadsUnmapped Fastx --outFilterMismatchNmax %s --outFilterMismatchNoverLmax %s --outFilterScoreMinOverLread %s --outFilterMatchNmin %s" % (args.outFilterMismatchNmax, args.outFilterMismatchNoverLmax,args.outFilterScoreMinOverLread, args.outFilterMatchNmin)
+    star_options = ["--runThreadN", "32", "--outSAMattributes", "All",
+                    "--genomeLoad", "LoadAndKeep",
+                    "--outFilterType", "Normal",
+                    "--outSAMstrandField", "intronMotif",
+                    "--outFilterIntronMotifs", "RemoveNoncanonical",
+                    "--outSAMtype", '"BAM Unsorted"',
+                    "--limitBAMsortRAM", "5784458574",
+                    "--readFilesCommand", "zcat",
+                    "--outReadsUnmapped", "Fastx",
+                    "--outFilterMismatchNmax", args.outFilterMismatchNmax,
+                    "--outFilterMismatchNoverLmax", args.outFilterMismatchNoverLmax,
+                    "--outFilterScoreMinOverLread", args.outFilterScoreMinOverLread,
+                    "--outFilterMatchNmin", args.outFilterMatchNmin]
+    if args.twopassMode:
+        star_options.append("--twopassMode")
 
-    cmd = 'STAR --genomeDir %s %s --readFilesIn %s %s --outFileNamePrefix %s' % (genome_dir, star_options,first_pair_group, second_pair_group, outfile_prefix)
-
-    print('STAR run command:%s' %cmd)
-    os.system(cmd)
+    #cmd = 'STAR --genomeDir %s %s --readFilesIn %s %s --outFileNamePrefix %s' % (genome_dir, star_options,first_pair_group, second_pair_group, outfile_prefix)
+    command = ["STAR", "--genomeDir", genome_dir]
+    command += star_options
+    command += [ "--readFilesIn", first_pair_group,
+                 second_pair_group,
+                 "--outFileNamePrefix", outfile_prefix]
+    cmd = ' '.join(command)
+    print('STAR run command:%s' % cmd)
+    #os.system(cmd)
+    compl_proc = subprocess.run(command, check=True, capture_output=False)
 
 ####################### Deduplication (not in _old) ###############################
 def dedup(results_dir,folder_name):
-    print
     print('\033[33mRunning Deduplication! \033[0m')
     outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
 
@@ -144,8 +162,7 @@ def dedup(results_dir,folder_name):
     markdupSTAR_bam = '%sProcessed.out.bam' % (outfile_prefix)
     nosingleton_bam = '%sNoSingleton.out.bam' % (outfile_prefix)
     nosingletonCollated_bam = '%sNoSingletonCollated.out.bam' % (outfile_prefix)
-    
-    
+
     # Add ms and MC tags for markdup to use later:
     #fixmate_cmd = 'samtools fixmate -m %s %s' %(aligned_bam,fixmate_bam)
     fixmate_command = ['samtools', 'fixmate', '-m', aligned_bam, fixmate_bam]
@@ -155,9 +172,15 @@ def dedup(results_dir,folder_name):
     sort_command = ['samtools', 'sort', '-o', ordered_bam, fixmate_bam]
     sort_cmd = ' '.join(sort_command)
     # mark duplicates
-    markdup_cmd = 'samtools markdup -r -s %s %s' %(ordered_bam,markdup_bam)
+    #markdup_cmd = 'samtools markdup -r -s %s %s' %(ordered_bam,markdup_bam)
+    markdup_command = ['samtools', 'markdup', '-r', '-s', ordered_bam, markdup_bam]
+    markdup_cmd = ' '.join(markdup_command)
     # removesingletons
-    rmsingletons_cmd = 'samtools view -@ 8 -F 0x08 -b %s > %s' %(markdup_bam,nosingleton_bam)
+    #rmsingletons_cmd = 'samtools view -@ 8 -F 0x08 -b %s > %s' %(markdup_bam,nosingleton_bam)
+    rmsingletons_command = ['samtools', 'view', '-@', '8',
+                            '-F', '0x08', '-b', markdup_bam, '>', nosingleton_bam]
+    rmsingletons_cmd = ' '.join(rmsingletons_command)
+
     # STAR mark duplicates
     star_markdup_cmd = 'STAR --runThreadN 32 --runMode inputAlignmentsFromBAM --bamRemoveDuplicatesType UniqueIdenticalNotMulti --inputBAMfile %s --outFileNamePrefix %s' % (aligned_bam,outfile_prefix)
     # removesingletons fron STAR
@@ -167,21 +190,19 @@ def dedup(results_dir,folder_name):
 
     ## Samtools based BAM duplicate removal
     print()
-    print('samtools fixmate run command:%s' %fixmate_cmd)
-    #os.system(fixmate_cmd)
+    print('samtools fixmate run command:%s' % fixmate_cmd)
     compl_proc = subprocess.run(fixmate_command, check=True, capture_output=False)
 
     print()
-    print('samtools sort run command:%s' %sort_cmd)
+    print('samtools sort run command:%s' % sort_cmd)
     compl_proc = subprocess.run(sort_command, check=True, capture_output=False)
-    #os.system(sort_cmd)
 
     print()
-    print('samtools mark diuplicates run command:%s' %markdup_cmd)
-    os.system(markdup_cmd)
+    print('samtools mark diuplicates run command:%s' % markdup_cmd)
+    compl_proc = subprocess.run(markdup_command, check=True, capture_output=False)
 
     print()
-    print('samtools rm singletons run command:%s' %rmsingletons_cmd)
+    print('samtools rm singletons run command:%s' % rmsingletons_cmd)
     os.system(rmsingletons_cmd)
 
     ## STAR based BAM duplicate removal
@@ -194,7 +215,7 @@ def dedup(results_dir,folder_name):
     print()
     print('Samtools  STAR Dedup Remove run command:%s' %rmsingletonsSTAR_cmd)
     os.system(rmsingletonsSTAR_cmd)
-    
+
     # Remove marked duplicates withh samtools
     print()
     print('Samtools  Collate reads by read name run command:%s' %collatereadsSTAR_cmd)
@@ -206,7 +227,6 @@ def dedup(results_dir,folder_name):
 def run_salmon_quant(results_dir, folder_name, genome_fasta):
     outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
     print(outfile_prefix)
- 
     print
     print('\033[33mRunning salmon-quant! \033[0m')
     # check if we are performing deduplication
@@ -347,6 +367,7 @@ if __name__ == '__main__':
     parser.add_argument('outdir', help='output directory')
     parser.add_argument('--genome_gff', help='genome GFF file')
     parser.add_argument('--dedup', action='store_true', help='should we deduplicate bam files (True or False)')
+    parser.add_argument('--twopassMode', action='store_true', help='run STAR in two-pass mode')
     parser.add_argument('--starPrefix', help="STAR output file name prefix")
     parser.add_argument('--salmonPrefix', help="Salmon output folder name prefix")
     parser.add_argument('--outFilterMismatchNmax', nargs='?', const=10, type=int)

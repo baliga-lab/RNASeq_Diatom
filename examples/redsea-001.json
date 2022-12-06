@@ -9,17 +9,18 @@
      "outFilterMismatchNmax": 10,
      "outFilterMismatchNoverLmax": 0.3,
      "outFilterScoreMinOverLread": 0.66,
-     "outFilterMatchNmin": 0
+     "outFilterMatchNmin": 0,
+     "twopassMode": false
    },
    "sbatch_options": {
       "star_salmon": {
         "options": [
           "--mem=8G"
         ],
-	"extras": [
-	  "source ~/anaconda3/etc/profile.d/conda.sh",
+        "extras": [
+          "source ~/anaconda3/etc/profile.d/conda.sh",
           "conda activate STAR"
-	]
-     }
+        ]
+      }
    }
 }
