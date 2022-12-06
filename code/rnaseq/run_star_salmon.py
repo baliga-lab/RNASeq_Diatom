@@ -132,10 +132,10 @@ def run_star(first_pair_group, second_pair_group, results_dir, star_input_files,
                     "--limitBAMsortRAM", "5784458574",
                     "--readFilesCommand", "zcat",
                     "--outReadsUnmapped", "Fastx",
-                    "--outFilterMismatchNmax", args.outFilterMismatchNmax,
-                    "--outFilterMismatchNoverLmax", args.outFilterMismatchNoverLmax,
-                    "--outFilterScoreMinOverLread", args.outFilterScoreMinOverLread,
-                    "--outFilterMatchNmin", args.outFilterMatchNmin]
+                    "--outFilterMismatchNmax", str(args.outFilterMismatchNmax),
+                    "--outFilterMismatchNoverLmax", str(args.outFilterMismatchNoverLmax),
+                    "--outFilterScoreMinOverLread", str(args.outFilterScoreMinOverLread),
+                    "--outFilterMatchNmin", str(args.outFilterMatchNmin)]
     if args.twopassMode:
         star_options.append("--twopassMode")
 
