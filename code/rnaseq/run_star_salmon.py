@@ -137,7 +137,7 @@ def run_star(first_pair_group, second_pair_group, results_dir, star_input_files,
                     "--outFilterScoreMinOverLread", str(args.outFilterScoreMinOverLread),
                     "--outFilterMatchNmin", str(args.outFilterMatchNmin)]
     if args.twopassMode:
-        star_options.append("--twopassMode")
+        star_options.extend(["--twopassMode", "Basic"])
 
     #cmd = 'STAR --genomeDir %s %s --readFilesIn %s %s --outFileNamePrefix %s' % (genome_dir, star_options,first_pair_group, second_pair_group, outfile_prefix)
     command = ["STAR", "--genomeDir", genome_dir]
