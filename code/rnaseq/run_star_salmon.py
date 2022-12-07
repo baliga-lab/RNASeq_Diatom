@@ -141,7 +141,6 @@ def run_star(first_pair_group, second_pair_group, results_dir, star_input_files,
     else:
         star_options.extend(["--genomeLoad", "LoadAndKeep"])
 
-    #cmd = 'STAR --genomeDir %s %s --readFilesIn %s %s --outFileNamePrefix %s' % (genome_dir, star_options,first_pair_group, second_pair_group, outfile_prefix)
     command = ["STAR", "--genomeDir", genome_dir]
     command += star_options
     command += [ "--readFilesIn", first_pair_group,
@@ -149,7 +148,6 @@ def run_star(first_pair_group, second_pair_group, results_dir, star_input_files,
                  "--outFileNamePrefix", outfile_prefix]
     cmd = ' '.join(command)
     print('STAR run command:%s' % cmd)
-    #os.system(cmd)
     compl_proc = subprocess.run(command, check=True, capture_output=False)
 
 ####################### Deduplication (not in _old) ###############################
@@ -166,29 +164,45 @@ def dedup(results_dir,folder_name):
     nosingletonCollated_bam = '%sNoSingletonCollated.out.bam' % (outfile_prefix)
 
     # Add ms and MC tags for markdup to use later:
-    #fixmate_cmd = 'samtools fixmate -m %s %s' %(aligned_bam,fixmate_bam)
     fixmate_command = ['samtools', 'fixmate', '-m', aligned_bam, fixmate_bam]
     fixmate_cmd = ' '.join(fixmate_command)
+
     # position order
-    #sort_cmd = 'samtools sort -o %s %s' %(ordered_bam,fixmate_bam)
     sort_command = ['samtools', 'sort', '-o', ordered_bam, fixmate_bam]
     sort_cmd = ' '.join(sort_command)
+
     # mark duplicates
-    #markdup_cmd = 'samtools markdup -r -s %s %s' %(ordered_bam,markdup_bam)
     markdup_command = ['samtools', 'markdup', '-r', '-s', ordered_bam, markdup_bam]
     markdup_cmd = ' '.join(markdup_command)
-    # removesingletons
-    #rmsingletons_cmd = 'samtools view -@ 8 -F 0x08 -b %s > %s' %(markdup_bam,nosingleton_bam)
+
+    # remove singletons
     rmsingletons_command = ['samtools', 'view', '-@', '8',
                             '-F', '0x08', '-b', markdup_bam, '>', nosingleton_bam]
     rmsingletons_cmd = ' '.join(rmsingletons_command)
 
     # STAR mark duplicates
-    star_markdup_cmd = 'STAR --runThreadN 32 --runMode inputAlignmentsFromBAM --bamRemoveDuplicatesType UniqueIdenticalNotMulti --inputBAMfile %s --outFileNamePrefix %s' % (aligned_bam,outfile_prefix)
-    # removesingletons fron STAR
-    rmsingletonsSTAR_cmd = 'samtools view -@ 8 -b -F 0x400 %s > %s' %(markdupSTAR_bam,nosingleton_bam)
+    #star_markdup_cmd = 'STAR --runThreadN 32 --runMode inputAlignmentsFromBAM --bamRemoveDuplicatesType UniqueIdenticalNotMulti --inputBAMfile %s --outFileNamePrefix %s' % (aligned_bam,outfile_prefix)
+    star_markdup_command = ['STAR', '--runThreadN', '32',
+                            '--runMode',
+                            'inputAlignmentsFromBAM',
+                            '--bamRemoveDuplicatesType', 'UniqueIdenticalNotMulti',
+                            '--inputBAMfile', aligned_bam,
+                            '--outFileNamePrefix', outfile_prefix]
+    star_markdup_cmd = ' '.join(star_markdup_cmd)
+
+    # removesingletons from STAR
+    #rmsingletonsSTAR_cmd = 'samtools view -@ 8 -b -F 0x400 %s > %s' %(markdupSTAR_bam,nosingleton_bam)
+    rmsingletonsSTAR_command = ['samtools', 'view', '-@', '8',
+                                '-b', '-F', '0x400', markdupSTAR_bam,
+                                '>', nosingleton_bam]
+    rmsingletonsSTAR_cmd = ' '.join(rmsingletonsSTAR_command)
+
     # Collate reads by name
-    collatereadsSTAR_cmd = 'samtools sort -o %s -n -@ 8 %s' %(nosingletonCollated_bam, nosingleton_bam)
+    #collatereadsSTAR_cmd = 'samtools sort -o %s -n -@ 8 %s' %(nosingletonCollated_bam, nosingleton_bam)
+    collatereadsSTAR_command = ['samtools', 'sort', '-o',
+                                nosingletonCollated_bam,
+                                '-n', '-@', '8', nosingleton_bam]
+    collatedreadsSTAR_cmd = ' '.join(collatedreadsSTAR_command)
 
     ## Samtools based BAM duplicate removal
     print()
@@ -205,23 +219,23 @@ def dedup(results_dir,folder_name):
 
     print()
     print('samtools rm singletons run command:%s' % rmsingletons_cmd)
-    os.system(rmsingletons_cmd)
+    os.system(rmsingletons_cmd)  # WW: use subprocess.run(), test shell interaction
 
     ## STAR based BAM duplicate removal
     # Mark duplicates with STAR
     print()
-    print('STAR mark duplicates run command:%s' %star_markdup_cmd)
-    os.system(star_markdup_cmd)
+    print('STAR mark duplicates run command:%s' % star_markdup_cmd)
+    compl_proc = subprocess.run(star_markdup_command, check=True, capture_output=False)
 
     # Remove marked duplicates withh samtools
     print()
-    print('Samtools  STAR Dedup Remove run command:%s' %rmsingletonsSTAR_cmd)
-    os.system(rmsingletonsSTAR_cmd)
+    print('Samtools  STAR Dedup Remove run command:%s' % rmsingletonsSTAR_cmd)
+    os.system(rmsingletonsSTAR_cmd)  # WW: use subprocess.run(), test shell interaction
 
     # Remove marked duplicates withh samtools
     print()
-    print('Samtools  Collate reads by read name run command:%s' %collatereadsSTAR_cmd)
-    os.system(collatereadsSTAR_cmd)
+    print('Samtools  Collate reads by read name run command:%s' % collatereadsSTAR_cmd)
+    compl_proc = subprocess.run(collatedreadsSTAR_command, check=True, capture_output=False)
 
 
 ####################### Run Salmon Count ###############################

@@ -4,7 +4,7 @@
    "output_dir": "/proj/omics4tb2/wwu/Global_Search/redsea-output-001",
    "genome_gff": "",
    "includes": ["R1"],
-   "deduplicate_bam_files": false,
+   "deduplicate_bam_files": true,
    "star_options": {
      "outFilterMismatchNmax": 10,
      "outFilterMismatchNoverLmax": 0.3,
