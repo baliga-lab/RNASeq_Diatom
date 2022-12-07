@@ -124,7 +124,6 @@ def run_star(first_pair_group, second_pair_group, results_dir, star_input_files,
     # WW:these are different options than in _old !!! also outfile_prefix !!!!
     #star_options ="--runThreadN 32 --outSAMattributes All --genomeLoad LoadAndKeep --outFilterType Normal  --outSAMstrandField intronMotif --outFilterIntronMotifs RemoveNoncanonical --outSAMtype BAM Unsorted --limitBAMsortRAM 5784458574 --readFilesCommand zcat --outReadsUnmapped Fastx --outFilterMismatchNmax %s --outFilterMismatchNoverLmax %s --outFilterScoreMinOverLread %s --outFilterMatchNmin %s" % (args.outFilterMismatchNmax, args.outFilterMismatchNoverLmax,args.outFilterScoreMinOverLread, args.outFilterMatchNmin)
     star_options = ["--runThreadN", "32", "--outSAMattributes", "All",
-                    "--genomeLoad", "LoadAndKeep",
                     "--outFilterType", "Normal",
                     "--outSAMstrandField", "intronMotif",
                     "--outFilterIntronMotifs", "RemoveNoncanonical",
@@ -138,6 +137,9 @@ def run_star(first_pair_group, second_pair_group, results_dir, star_input_files,
                     "--outFilterMatchNmin", str(args.outFilterMatchNmin)]
     if args.twopassMode:
         star_options.extend(["--twopassMode", "Basic"])
+        star_options.extend(["--genomeLoad", "NoSharedMemory"])
+    else:
+        star_options.extend(["--genomeLoad", "LoadAndKeep"])
 
     #cmd = 'STAR --genomeDir %s %s --readFilesIn %s %s --outFileNamePrefix %s' % (genome_dir, star_options,first_pair_group, second_pair_group, outfile_prefix)
     command = ["STAR", "--genomeDir", genome_dir]
