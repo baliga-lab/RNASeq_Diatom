@@ -15,6 +15,13 @@ def check_params(config):
     print("checking integrity of parameters...", end="")
     if not os.path.exists(config["input_dir"]):
         sys.exit("Input directory '%s' does not exist" % config["input_dir"])
+
+    try:
+        if len(config['genome_fasta'].strip()) > 0 and not os.path.exists(config["genome_fasta"]):
+            sys.exit("ERROR: Specified Genome FASTA '%s' does not exist" % config["genome_fasta"])
+    except:
+        print("WARNING: genome_gff not specified (htseq will be skipped)")
+
     if not os.path.exists(config["genome_dir"]):
         sys.exit("Genome directory '%s' does not exist" % config["genome_dir"])
         genome_fasta = glob.glob('%s/*.fasta' % (args.genomedir))
