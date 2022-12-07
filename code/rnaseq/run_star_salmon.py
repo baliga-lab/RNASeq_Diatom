@@ -382,6 +382,7 @@ if __name__ == '__main__':
     parser.add_argument('indir', help="input directory (R<somenumber>)")
     parser.add_argument('outdir', help='output directory')
     parser.add_argument('--genome_gff', help='genome GFF file')
+    parser.add_argument('--genome_fasta', help='genome FASTA file')
     parser.add_argument('--dedup', action='store_true', help='should we deduplicate bam files (True or False)')
     parser.add_argument('--twopassMode', action='store_true', help='run STAR in two-pass mode')
     parser.add_argument('--starPrefix', help="STAR output file name prefix")
@@ -398,7 +399,10 @@ if __name__ == '__main__':
     now = datetime.datetime.now()
     timeprint = now.strftime("%Y-%m-%d %H:%M")
     data_folder = "%s/%s" % (args.dataroot, args.indir)
-    genome_fasta = glob.glob('%s/*.fasta' % (args.genomedir))[0]
+    if args.genome_fasta is not None and os.path.exists(args.genome_fasta):
+        genome_fasta = args.genome_fasta
+    else:
+        genome_fasta = glob.glob('%s/*.fasta' % (args.genomedir))[0]
 
     create_genome_index(args.genomedir, genome_fasta)
     data_trimmed_dir,fastqc_dir,results_dir = run_pipeline(data_folder, args.outdir, args.genomedir, genome_fasta,

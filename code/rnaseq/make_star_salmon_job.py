@@ -18,7 +18,7 @@ salmon_prefix="salmon_{{star_options.outFilterMismatchNmax}}_{{star_options.outF
 
 {{sbatch_extras}}
 
-$GS_HOME/code/rnaseq/run_star_salmon.py {{twopass_mode}} --outFilterMismatchNmax {{star_options.outFilterMismatchNmax}} --outFilterMismatchNoverLmax {{star_options.outFilterMismatchNoverLmax}} --outFilterScoreMinOverLread {{star_options.outFilterScoreMinOverLread}} --outFilterMatchNmin {{star_options.outFilterMatchNmin}} {{dedup_option}} --starPrefix $star_prefix --salmonPrefix $salmon_prefix {{genome_gff_option}} {{genome_dir}} {{input_dir}} $data_folder {{output_dir}}
+$GS_HOME/code/rnaseq/run_star_salmon.py {{twopass_mode}} --outFilterMismatchNmax {{star_options.outFilterMismatchNmax}} --outFilterMismatchNoverLmax {{star_options.outFilterMismatchNoverLmax}} --outFilterScoreMinOverLread {{star_options.outFilterScoreMinOverLread}} --outFilterMatchNmin {{star_options.outFilterMatchNmin}} {{dedup_option}} --starPrefix $star_prefix --salmonPrefix $salmon_prefix {{genome_gff_option}} {{genome_fasta_option}} {{genome_dir}} {{input_dir}} $data_folder {{output_dir}}
 #$GS_HOME/code/rnaseq/run_star_salmon_old.py {{genome_gff_option}} {{genome_dir}} {{input_dir}} $data_folder {{output_dir}}
 """
 
@@ -61,6 +61,15 @@ if __name__ == '__main__':
         genome_gff = config['genome_gff']
         if os.path.exists(genome_gff):
             config['genome_gff_option'] = '--genome_gff %s' % genome_gff
+    except:
+        pass
+
+    # see if optional genome_fasta exists
+    try:
+        config['genome_fasta_option'] = ''
+        genome_fasta = config['genome_fasta']
+        if os.path.exists(genome_fasta):
+            config['genome_fasta_option'] = '--genome_fasta %s' % genome_fasta
     except:
         pass
     print(templ.render(config))
