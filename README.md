@@ -40,13 +40,15 @@ Configuration files are in JSON format of the following form
   "input_dir": <input directory>,
   "genome_dir": <input directory>,
   "genome_gff": <GFF file>,
+  "genome_fasta": <FASTA file>,
   "includes": [<directory name],
   "deduplicate_bam_files": false,
   "star_options": {
      "outFilterMismatchNmax": 10,
      "outFilterMismatchNoverLmax": 0.3,
      "outFilterScoreMinOverLread": 0.66,
-     "outFilterMatchNmin": 0
+     "outFilterMatchNmin": 0,
+     "twopassMode": false
   },
   "sbatch_options": {
      <pipeline_step_name>: {
