@@ -199,9 +199,9 @@ def dedup(results_dir,folder_name):
 
     # Collate reads by name
     #collatereadsSTAR_cmd = 'samtools sort -o %s -n -@ 8 %s' %(nosingletonCollated_bam, nosingleton_bam)
-    collatereadsSTAR_command = ['samtools', 'sort', '-o',
-                                nosingletonCollated_bam,
-                                '-n', '-@', '8', nosingleton_bam]
+    collatedreadsSTAR_command = ['samtools', 'sort', '-o',
+                                 nosingletonCollated_bam,
+                                 '-n', '-@', '8', nosingleton_bam]
     collatedreadsSTAR_cmd = ' '.join(collatedreadsSTAR_command)
 
     ## Samtools based BAM duplicate removal
