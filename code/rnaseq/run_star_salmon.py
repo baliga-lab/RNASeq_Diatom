@@ -188,7 +188,7 @@ def dedup(results_dir,folder_name):
                             '--bamRemoveDuplicatesType', 'UniqueIdenticalNotMulti',
                             '--inputBAMfile', aligned_bam,
                             '--outFileNamePrefix', outfile_prefix]
-    star_markdup_cmd = ' '.join(star_markdup_cmd)
+    star_markdup_cmd = ' '.join(star_markdup_command)
 
     # removesingletons from STAR
     #rmsingletonsSTAR_cmd = 'samtools view -@ 8 -b -F 0x400 %s > %s' %(markdupSTAR_bam,nosingleton_bam)
