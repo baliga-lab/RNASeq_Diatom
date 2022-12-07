@@ -235,7 +235,7 @@ def dedup(results_dir,folder_name):
     # Remove marked duplicates withh samtools
     print()
     print('Samtools  Collate reads by read name run command:%s' % collatereadsSTAR_cmd)
-    compl_proc = subprocess.run(collatedreadsSTAR_command, check=True, capture_output=False)
+    compl_proc = subprocess.run(collatereadsSTAR_command, check=True, capture_output=False)
 
 
 ####################### Run Salmon Count ###############################
