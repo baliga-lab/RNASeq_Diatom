@@ -9,6 +9,8 @@ import glob, sys, os, string, datetime, re
 import argparse
 import subprocess
 
+from find_files import find_fastq_files
+
 DESCRIPTION = """run_STAR_SALMON.py - run STAR and Salmon"""
 
 ####################### Create results directories ###############################
@@ -304,9 +306,8 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
 
     # Get the list of first file names in paired end sequences
     ## We need to make sure we capture fastq data files
-    DATA_SEARCH1 = '%s/*_1.fq*' % data_folder
-    print("SEARCHING FIRST PAIRS IN: ", DATA_SEARCH1)
-    first_pair_files = glob.glob(DATA_SEARCH1)
+    DATA_SEARCH1 = '/*_1.fq*'
+    first_pair_files = find_fastq_files(data_folder, DATA_SEARCH1)
     #second_pair_files = glob.glob('%s/_R2*.fastq*' %(data_folder))
 
     # Program specific results directories
