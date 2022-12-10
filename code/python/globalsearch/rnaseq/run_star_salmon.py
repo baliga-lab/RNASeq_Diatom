@@ -121,10 +121,7 @@ def collect_trimmed_data(data_trimmed_dir, file_ext):
 def run_star(first_pair_group, second_pair_group, results_dir, star_input_files,
              folder_name, genome_dir):
     print('\033[33mRunning STAR! \033[0m')
-
     outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
-    # WW:these are different options than in _old !!! also outfile_prefix !!!!
-    #star_options ="--runThreadN 32 --outSAMattributes All --genomeLoad LoadAndKeep --outFilterType Normal  --outSAMstrandField intronMotif --outFilterIntronMotifs RemoveNoncanonical --outSAMtype BAM Unsorted --limitBAMsortRAM 5784458574 --readFilesCommand zcat --outReadsUnmapped Fastx --outFilterMismatchNmax %s --outFilterMismatchNoverLmax %s --outFilterScoreMinOverLread %s --outFilterMatchNmin %s" % (args.outFilterMismatchNmax, args.outFilterMismatchNoverLmax,args.outFilterScoreMinOverLread, args.outFilterMatchNmin)
     star_options = ["--runThreadN", "32", "--outSAMattributes", "All",
                     "--outFilterType", "Normal",
                     "--outSAMstrandField", "intronMotif",

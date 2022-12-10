@@ -5,6 +5,23 @@ find_files.py - module for flexible finding of FASTQ files
 import glob
 import logging
 import os
+import re
+
+
+def rnaseq_data_folder_list(config):
+    """Function to determine the list of directories that are to be submitted to
+    the cluster for RNA sequencing analysis
+    """
+    result = []
+    pattern = re.compile('R[E]?\d+.*')
+    if len(config['includes']) > 0:
+        # Take the list specified in the "includes" section of the configuration file
+        result = config['includes']
+    else:
+        # take the top level directories in the input directory
+        # that match the pattern
+        result = [d for d in os.listdir(config['input_dir']) if re.match(pattern, d)]
+    return result
 
 
 def _find_fastq_files(data_folder, patterns):

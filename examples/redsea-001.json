@@ -2,10 +2,10 @@
    "input_dir": "/proj/omics4tb2/wwu/GlobalSearch.old/Pilot_Fail_Concat/rawdata",
    "genome_dir": "/proj/omics4tb2/wwu/GlobalSearch.old/reference_genomes/past_smic",
    "output_dir": "/proj/omics4tb2/wwu/Global_Search/redsea-output-001",
-   "genome_fasta": "",
+   "genome_fasta": "/proj/omics4tb2/wwu/GlobalSearch.old/reference_genomes/past_smic/Past_Smic_merged_CDS_suffixed.fasta",
    "genome_gff": "",
    "includes": ["R1"],
-   "deduplicate_bam_files": true,
+   "deduplicate_bam_files": false,
    "star_options": {
      "outFilterMismatchNmax": 10,
      "outFilterMismatchNoverLmax": 0.3,
