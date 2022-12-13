@@ -5,6 +5,7 @@ find_files.py - module for flexible finding of FASTQ files
 import glob
 import logging
 import os, re, fs
+import jinja2
 from fs.osfs import OSFS  # make sure we install the fs package !!!
 
 
@@ -34,7 +35,9 @@ def _find_fastq_files(data_folder, patterns, rootfs):
     logger = logging.getLogger("rnaseq")
     result = []
     filesys = rootfs.opendir(data_folder)
-    for pattern in patterns:
+    for pat in patterns:
+        templ = jinja2.Template(pat)
+        pattern = templ.render({'pairnum': 1})
         logger.info("SEARCHING FIRST PAIRS IN: %s", pattern)
         for match in filesys.glob(pattern):
             result.append(fs.path.combine(data_folder, match.path))

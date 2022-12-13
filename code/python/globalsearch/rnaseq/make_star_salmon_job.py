@@ -18,7 +18,7 @@ salmon_prefix="salmon_{{star_options.outFilterMismatchNmax}}_{{star_options.outF
 
 {{sbatch_extras}}
 
-$GS_HOME/code/python/globalsearch/rnaseq/run_star_salmon.py {{twopass_mode}} --outFilterMismatchNmax {{star_options.outFilterMismatchNmax}} --outFilterMismatchNoverLmax {{star_options.outFilterMismatchNoverLmax}} --outFilterScoreMinOverLread {{star_options.outFilterScoreMinOverLread}} --outFilterMatchNmin {{star_options.outFilterMatchNmin}} {{dedup_option}} --starPrefix $star_prefix --salmonPrefix $salmon_prefix {{genome_gff_option}} {{genome_fasta_option}} {{genome_dir}} {{input_dir}} $data_folder {{output_dir}}
+$GS_HOME/code/python/globalsearch/rnaseq/run_star_salmon.py {{twopass_mode}} {{fastq_patterns}} --outFilterMismatchNmax {{star_options.outFilterMismatchNmax}} --outFilterMismatchNoverLmax {{star_options.outFilterMismatchNoverLmax}} --outFilterScoreMinOverLread {{star_options.outFilterScoreMinOverLread}} --outFilterMatchNmin {{star_options.outFilterMatchNmin}} {{dedup_option}} --starPrefix $star_prefix --salmonPrefix $salmon_prefix {{genome_gff_option}} {{genome_fasta_option}} {{genome_dir}} {{input_dir}} $data_folder {{output_dir}}
 """
 
 DESCRIPTION = """make_star_salmon_job.py - Create STAR Salmon job file for Slurm"""
@@ -53,6 +53,7 @@ if __name__ == '__main__':
     config['dedup_option'] = '--dedup' if config['deduplicate_bam_files'] else ''
     config['dedup_option'] = '--dedup' if config['deduplicate_bam_files'] else ''
     config['twopass_mode'] = '--twopassMode' if config['star_options']['twopassMode'] else ''
+    config['fastq_patterns'] = '--fastq_patterns %s' % config['fastq_patterns'] if len(config['fastq_patterns']) > 0 else ''
 
     # see if optional genome_gff exists
     try:

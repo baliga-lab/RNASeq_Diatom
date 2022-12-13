@@ -1,27 +1,28 @@
 {
-   "input_dir": "/proj/omics4tb2/wwu/GlobalSearch.old/Pilot_Fail_Concat/rawdata",
-   "genome_dir": "/proj/omics4tb2/wwu/GlobalSearch.old/reference_genomes/past_smic",
-   "output_dir": "/proj/omics4tb2/wwu/Global_Search/redsea-output-001",
-   "genome_fasta": "/proj/omics4tb2/wwu/GlobalSearch.old/reference_genomes/past_smic/Past_Smic_merged_CDS_suffixed.fasta",
-   "genome_gff": "",
-   "includes": ["R1"],
-   "deduplicate_bam_files": false,
-   "star_options": {
-     "outFilterMismatchNmax": 10,
-     "outFilterMismatchNoverLmax": 0.3,
-     "outFilterScoreMinOverLread": 0.66,
-     "outFilterMatchNmin": 0,
-     "twopassMode": false
-   },
-   "sbatch_options": {
-      "star_salmon": {
-        "options": [
-          "--mem=8G"
-        ],
-        "extras": [
-          "source ~/anaconda3/etc/profile.d/conda.sh",
-          "conda activate STAR"
-        ]
-      }
-   }
+    "input_dir": "/proj/omics4tb2/wwu/GlobalSearch.old/Pilot_Fail_Concat/rawdata",
+    "genome_dir": "/proj/omics4tb2/wwu/GlobalSearch.old/reference_genomes/past_smic",
+    "output_dir": "/proj/omics4tb2/wwu/Global_Search/redsea-output-001",
+    "genome_fasta": "/proj/omics4tb2/wwu/GlobalSearch.old/reference_genomes/past_smic/Past_Smic_merged_CDS_suffixed.fasta",
+    "genome_gff": "",
+    "fastq_patterns": "*_{{pairnum}}.fq.*,*_{{pairnum}}.fastq.*",
+    "includes": ["R1"],
+    "deduplicate_bam_files": false,
+    "star_options": {
+        "outFilterMismatchNmax": 10,
+        "outFilterMismatchNoverLmax": 0.3,
+        "outFilterScoreMinOverLread": 0.66,
+        "outFilterMatchNmin": 0,
+        "twopassMode": false
+    },
+    "sbatch_options": {
+        "star_salmon": {
+            "options": [
+                "--mem=8G"
+            ],
+            "extras": [
+                "source ~/anaconda3/etc/profile.d/conda.sh",
+                "conda activate STAR"
+            ]
+        }
+    }
 }

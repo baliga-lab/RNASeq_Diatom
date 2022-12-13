@@ -295,7 +295,6 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
     folder_count = 1
 
     # Loop through each data folder
-    #for data_folder in data_folders:
     folder_name = data_folder.split('/')[-1]
     print
     print
@@ -303,9 +302,7 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
 
     # Get the list of first file names in paired end sequences
     ## We need to make sure we capture fastq data files
-    DATA_SEARCH1 = '/*_1.fq*'
-    first_pair_files = find_fastq_files(data_folder, DATA_SEARCH1)
-    #second_pair_files = glob.glob('%s/_R2*.fastq*' %(data_folder))
+    first_pair_files = find_fastq_files(data_folder, args.fastq_patterns)
 
     # Program specific results directories
     data_trimmed_dir = "%s/%s/trimmed" % (results_folder,folder_name)
@@ -379,6 +376,7 @@ if __name__ == '__main__':
     parser.add_argument('dataroot', help="parent of input directory")
     parser.add_argument('indir', help="input directory (R<somenumber>)")
     parser.add_argument('outdir', help='output directory')
+    parser.add_argument('--fastq_patterns', help="FASTQ file patterns", default="*_{{pairnum}}.fq.*")
     parser.add_argument('--genome_gff', help='genome GFF file')
     parser.add_argument('--genome_fasta', help='genome FASTA file')
     parser.add_argument('--dedup', action='store_true', help='should we deduplicate bam files (True or False)')
