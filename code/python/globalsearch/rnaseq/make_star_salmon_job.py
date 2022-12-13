@@ -53,7 +53,7 @@ if __name__ == '__main__':
     config['dedup_option'] = '--dedup' if config['deduplicate_bam_files'] else ''
     config['dedup_option'] = '--dedup' if config['deduplicate_bam_files'] else ''
     config['twopass_mode'] = '--twopassMode' if config['star_options']['twopassMode'] else ''
-    config['fastq_patterns'] = '--fastq_patterns %s' % config['fastq_patterns'] if len(config['fastq_patterns']) > 0 else ''
+    config['fastq_patterns'] = '--fastq_patterns "%s"' % config['fastq_patterns'] if len(config['fastq_patterns']) > 0 else ''
 
     # see if optional genome_gff exists
     try:
