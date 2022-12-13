@@ -8,6 +8,8 @@
 import glob, sys, os, string, datetime, re
 import argparse
 import subprocess
+from fs.osfs import OSFS  # make sure we install the fs package !!!
+
 
 from find_files import find_fastq_files
 
@@ -304,7 +306,7 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
     # Get the list of first file names in paired end sequences
     ## We need to make sure we capture fastq data files
     DATA_SEARCH1 = '/*_1.fq*'
-    first_pair_files = find_fastq_files(data_folder, DATA_SEARCH1)
+    first_pair_files = find_fastq_files(data_folder, DATA_SEARCH1, OSFS('/'))
     #second_pair_files = glob.glob('%s/_R2*.fastq*' %(data_folder))
 
     # Program specific results directories

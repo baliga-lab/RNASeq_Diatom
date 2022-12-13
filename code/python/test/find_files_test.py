@@ -13,6 +13,14 @@ import globalsearch.rnaseq.find_files as find_files
 
 class FindFilesTest(unittest.TestCase):
 
+    def __make_input_folder(self, num_samples, pattern="R%d_%d.fq.gz"):
+        for i in range(1, num_samples + 1):
+            dir = "inputdata/R%d" % i
+            self.mem_fs.makedir(dir)
+            for j in range(2):
+                fname = pattern % (i, j + 1)
+                self.mem_fs.touch(fs.path.combine(dir, fname))
+
     def setUp(self):
         self.mem_fs = fs.open_fs("mem://")
         self.mem_fs.makedir("inputdata")
@@ -21,10 +29,17 @@ class FindFilesTest(unittest.TestCase):
         self.mem_fs.close()
 
     def test_rnaseq_data_folder_list(self):
-        self.assertEqual(self.mem_fs.listdir("/")[0], "inputdata")
+        self.__make_input_folder(2)
+        config = {'input_dir': '/inputdata'}
+        result = find_files.rnaseq_data_folder_list(config, filesys=self.mem_fs)
+        self.assertEqual(self.mem_fs.listdir("/inputdata"), ['R1', 'R2'])
 
     def test_find_fastq_files(self):
-        pass
+        self.__make_input_folder(2)
+        print(self.mem_fs.listdir('/inputdata/R1'))
+        result = find_files.find_fastq_files("/inputdata/R1", '/*_1.fq*', self.mem_fs)
+        self.assertEqual(result, ['/inputdata/R1/R1_1.fq.gz'])
+
 
 if __name__ == '__main__':
     SUITE = []

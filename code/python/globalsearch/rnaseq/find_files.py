@@ -8,34 +8,42 @@ import os
 import re
 
 
-def rnaseq_data_folder_list(config):
+def rnaseq_data_folder_list(config, filesys=os):
     """Function to determine the list of directories that are to be submitted to
     the cluster for RNA sequencing analysis
     """
     result = []
     pattern = re.compile('R[E]?\d+.*')
-    if len(config['includes']) > 0:
+    try:
+        includes_list = config['includes']
+    except KeyError:
+        includes_list = []
+
+    if len(includes_list) > 0:
         # Take the list specified in the "includes" section of the configuration file
         result = config['includes']
     else:
         # take the top level directories in the input directory
         # that match the pattern
-        result = [d for d in os.listdir(config['input_dir']) if re.match(pattern, d)]
+        result = [d for d in filesys.listdir(config['input_dir']) if re.match(pattern, d)]
     return result
 
 
-def _find_fastq_files(data_folder, patterns):
+def _find_fastq_files(data_folder, patterns, filesys):
     """Stable version of file finder, search multiple patterns"""
     logger = logging.getLogger("rnaseq")
     result = []
     for pattern in patterns:
         logger.info("SEARCHING FIRST PAIRS IN: %s", pattern)
-        result.extend(glob.glob(data_folder + pattern))
+        for match in filesys.glob(data_folder + pattern):
+            result.append(match.path)
     return result
 
-def find_fastq_files(data_folder, patstring):
+
+def find_fastq_files(data_folder, patstring, filesys):
     patterns = patstring.split(',')
-    return _find_fastq_files(data_folder, patterns)
+    return _find_fastq_files(data_folder, patterns, filesys)
+
 
 # Base pattern for searching
 #DATA_SEARCH1 = '%s/RNA/*R1*.fastq*' % data_folder # test
