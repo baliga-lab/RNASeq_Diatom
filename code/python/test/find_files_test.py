@@ -36,7 +36,6 @@ class FindFilesTest(unittest.TestCase):
 
     def test_find_fastq_files(self):
         self.__make_input_folder(2)
-        print(self.mem_fs.listdir('/inputdata/R1'))
         result = find_files.find_fastq_files("/inputdata/R1", '/*_1.fq*', self.mem_fs)
         self.assertEqual(result, ['/inputdata/R1/R1_1.fq.gz'])
 

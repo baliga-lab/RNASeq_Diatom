@@ -4,8 +4,8 @@ find_files.py - module for flexible finding of FASTQ files
 """
 import glob
 import logging
-import os
-import re
+import os, re, fs
+from fs.osfs import OSFS  # make sure we install the fs package !!!
 
 
 def rnaseq_data_folder_list(config, filesys=os):
@@ -29,18 +29,19 @@ def rnaseq_data_folder_list(config, filesys=os):
     return result
 
 
-def _find_fastq_files(data_folder, patterns, filesys):
+def _find_fastq_files(data_folder, patterns, rootfs):
     """Stable version of file finder, search multiple patterns"""
     logger = logging.getLogger("rnaseq")
     result = []
+    filesys = rootfs.opendir(data_folder)
     for pattern in patterns:
         logger.info("SEARCHING FIRST PAIRS IN: %s", pattern)
-        for match in filesys.glob(data_folder + pattern):
-            result.append(match.path)
+        for match in filesys.glob(pattern):
+            result.append(fs.path.combine(data_folder, match.path))
     return result
 
 
-def find_fastq_files(data_folder, patstring, filesys):
+def find_fastq_files(data_folder, patstring, filesys=OSFS('/')):
     patterns = patstring.split(',')
     return _find_fastq_files(data_folder, patterns, filesys)
 
