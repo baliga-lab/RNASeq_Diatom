@@ -44,8 +44,7 @@ def _find_fastq_files(data_folder, patterns, rootfs):
     return result
 
 
-def find_fastq_files(data_folder, patstring, filesys=OSFS('/')):
-    patterns = patstring.split(',')
+def find_fastq_files(data_folder, patterns, filesys=OSFS('/')):
     return _find_fastq_files(data_folder, patterns, filesys)
 
 

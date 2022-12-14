@@ -36,12 +36,12 @@ class FindFilesTest(unittest.TestCase):
 
     def test_find_fastq_files(self):
         self.__make_input_folder(2)
-        result = find_files.find_fastq_files("/inputdata/R1", "*_{{pairnum}}.fq.*", self.mem_fs)
+        result = find_files.find_fastq_files("/inputdata/R1", ["*_{{pairnum}}.fq.*"], self.mem_fs)
         self.assertEqual(result, ['/inputdata/R1/R1_1.fq.gz'])
 
     def test_find_fastq_files_multi_pattern(self):
         self.__make_input_folder(2)
-        result = find_files.find_fastq_files("/inputdata/R1", "*_{{pairnum}}.fq.*,*_{{pairnum}}.fastq.*", self.mem_fs)
+        result = find_files.find_fastq_files("/inputdata/R1", ["*_{{pairnum}}.fq.*", "*_{{pairnum}}.fastq.*"], self.mem_fs)
         self.assertEqual(result, ['/inputdata/R1/R1_1.fq.gz'])
 
 

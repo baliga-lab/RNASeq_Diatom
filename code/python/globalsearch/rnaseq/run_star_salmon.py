@@ -302,7 +302,7 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
 
     # Get the list of first file names in paired end sequences
     ## We need to make sure we capture fastq data files
-    first_pair_files = find_fastq_files(data_folder, args.fastq_patterns)
+    first_pair_files = find_fastq_files(data_folder, args.fastq_patterns.split(','))
 
     # Program specific results directories
     data_trimmed_dir = "%s/%s/trimmed" % (results_folder,folder_name)
