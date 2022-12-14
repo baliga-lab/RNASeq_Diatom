@@ -30,22 +30,44 @@ def rnaseq_data_folder_list(config, filesys=os):
     return result
 
 
-def _find_fastq_files(data_folder, patterns, rootfs):
+def _find_fastq_files(data_folder, patterns, pairnum, rootfs):
     """Stable version of file finder, search multiple patterns"""
     logger = logging.getLogger("rnaseq")
     result = []
     filesys = rootfs.opendir(data_folder)
     for pat in patterns:
         templ = jinja2.Template(pat)
-        pattern = templ.render({'pairnum': 1})
+        pattern = templ.render({'pairnum': pairnum})
+        pattern = fs.path.combine('/**', pattern)
+        #print(pattern)
         logger.info("SEARCHING FIRST PAIRS IN: %s", pattern)
         for match in filesys.glob(pattern):
             result.append(fs.path.combine(data_folder, match.path))
     return result
 
 
-def find_fastq_files(data_folder, patterns, filesys=OSFS('/')):
-    return _find_fastq_files(data_folder, patterns, filesys)
+def find_fastq_files(data_folder, patterns, pairnum=1, filesys=OSFS('/')):
+    """
+    This function finds the FASTQ files according to the specified patterns. It will
+    start at data_folder and try to find all FASTQ files according to the pair number.
+    For the most part, patterns will follow the glob format, you can specify the position
+    of the pair number in Jinja2 format
+    Example:
+
+    A pattern of
+
+    *_{{pairnum}}.fastq.gz
+
+    with a pairnum of 1 would "match myfile_1.fastq.gz"
+
+
+    :param data_folder: the top level folder to start searching from
+    :param patterns: list of patterns to use in glob searching
+    :param pairnum: the pair number to use in the pattern
+    :param filesys: the PyFS file system to use in glob searching
+    :return the list of matching paths
+    """
+    return _find_fastq_files(data_folder, patterns, pairnum, filesys)
 
 
 # Base pattern for searching
