@@ -19,10 +19,21 @@ def rnaseq_data_folder_list(config, filesys=os):
         includes_list = config['includes']
     except KeyError:
         includes_list = []
+    try:
+        include_path = config['include_file']
+        if len(include_path) > 0 and filesys.exists(include_path):
+            with filesys.open(include_path) as infile:
+                for line in infile:
+                    includes_list.append(line.strip())
+        elif len(include_path) > 0 and not filesys.exists(include_path):
+            logging.warning("include file '%s' does not exist", include_path)
+    except:
+        # ignore any errors in the include_file
+        pass
 
     if len(includes_list) > 0:
         # Take the list specified in the "includes" section of the configuration file
-        result = config['includes']
+        result = includes_list
     else:
         # take the top level directories in the input directory
         # that match the pattern

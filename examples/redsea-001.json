@@ -6,6 +6,7 @@
     "genome_gff": "",
     "fastq_patterns": ["*_{{pairnum}}.fq.*", "*_{{pairnum}}.fastq.*"],
     "includes": ["R1"],
+    "include_file": "",
     "deduplicate_bam_files": false,
     "star_options": {
         "outFilterMismatchNmax": 10,
@@ -19,10 +20,7 @@
             "options": [
                 "--mem=8G"
             ],
-            "extras": [
-                "source ~/anaconda3/etc/profile.d/conda.sh",
-                "conda activate STAR"
-            ]
+            "extras": []
         }
     }
 }

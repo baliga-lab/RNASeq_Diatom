@@ -21,6 +21,10 @@ class FindFilesTest(unittest.TestCase):
                 fname = pattern % (i, j + 1)
                 self.mem_fs.touch(fs.path.combine(dir, fname))
 
+    def __make_include_file(self, path, includes):
+        self.mem_fs.writetext(path, '\n'.join(includes))
+
+
     def setUp(self):
         self.mem_fs = fs.open_fs("mem://")
         self.mem_fs.makedir("inputdata")
@@ -28,11 +32,36 @@ class FindFilesTest(unittest.TestCase):
     def tearDown(self):
         self.mem_fs.close()
 
-    def test_rnaseq_data_folder_list(self):
+    def test_rnaseq_data_folder_list_scandir(self):
         self.__make_input_folder(2)
         config = {'input_dir': '/inputdata'}
         result = find_files.rnaseq_data_folder_list(config, filesys=self.mem_fs)
-        self.assertEqual(self.mem_fs.listdir("/inputdata"), ['R1', 'R2'])
+        self.assertEqual(result, ['R1', 'R2'])
+
+    def test_rnaseq_data_folder_list_includes(self):
+        self.__make_input_folder(2)
+        config = {'input_dir': '/inputdata', 'includes': ['R11', 'R12']}
+        result = find_files.rnaseq_data_folder_list(config, filesys=self.mem_fs)
+        self.assertEqual(result, ['R11', 'R12'])
+
+    def test_rnaseq_data_folder_list_include_file(self):
+        self.__make_input_folder(2)
+        self.__make_include_file("/my_include.txt", ['R22', 'R23'])
+        #config = {'input_dir': '/inputdata', 'includes': ['R11', 'R12']}
+        config = {'input_dir': '/inputdata', 'include_file': '/my_include.txt'}
+        result = find_files.rnaseq_data_folder_list(config, filesys=self.mem_fs)
+        self.assertEqual(result, ['R22', 'R23'])
+
+    def test_rnaseq_data_folder_list_includes_and_include_file(self):
+        self.__make_input_folder(2)
+        self.__make_include_file("/my_include.txt", ['R22', 'R23'])
+        config = {
+            'input_dir': '/inputdata',
+            'includes': ['R11', 'R12'],
+            'include_file': '/my_include.txt'
+        }
+        result = find_files.rnaseq_data_folder_list(config, filesys=self.mem_fs)
+        self.assertEqual(sorted(result), ['R11', 'R12', 'R22', 'R23'])
 
     def test_find_fastq_files(self):
         self.__make_input_folder(2)
