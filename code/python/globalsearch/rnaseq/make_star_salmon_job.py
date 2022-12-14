@@ -8,8 +8,8 @@ import json
 TEMPLATE = """#!/bin/bash
 
 #SBATCH -J star_salmon_{{genome}}
-#SBATCH -o /proj/omics4tb2/wwu/slurm_logs/"%j".out
-#SBATCH -e /proj/omics4tb2/wwu/slurm_logs/"%j".out
+#SBATCH -o {{log_dir}}/"%j".out
+#SBATCH -e {{log_dir}}/"%j".out
 {{sbatch_options}}
 
 data_folder=$1

@@ -46,6 +46,9 @@ def create_dirs(config):
     if not os.path.exists(config["output_dir"]):
         print("creating output directory '%s'" % config["output_dir"])
         os.makedirs(config["output_dir"])
+    if not os.path.exists(config["log_dir"]):
+        print("creating log directory '%s'" % config["log_dir"])
+        os.makedirs(config["log_dir"])
 
 
 def __check_command(command, num_info_components=1, check_version=None, version_switch='--version',
