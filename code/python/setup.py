@@ -9,7 +9,7 @@ DESCRIPTION = 'globalsearch is a collection of Python modules and command tools 
 LICENSE = 'LGPL V3'
 URI = 'https://github.com/baliga-lab/Global_Search'
 AUTHOR = 'Wei-ju Wu'
-VERSION = '0.0.1'
+VERSION = '0.0.2'
 
 KEYWORDS = ['global search', 'coral reef']
 
@@ -46,4 +46,4 @@ if __name__ == '__main__':
           zip_safe=False,
           classifiers=CLASSIFIERS,
           install_requires=INSTALL_REQUIRES,
-          scripts=['bin/gs_submit.sh'])
+          scripts=['bin/gs_submit'])

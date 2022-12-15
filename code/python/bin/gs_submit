@@ -1,17 +1,13 @@
 #!/bin/bash
 
 if [ "$#" -ne 1 ] ; then
-	echo "Usage: gs_submit.sh <config-file>"
+	echo "Usage: gs_submit <config-file>"
 	exit 1
 fi
 
-if [ -z "$GS_HOME" ]; then
-	echo "Variable GS_HOME is not set. Please set to Global_Search repository path."
-	exit 1
-fi
 
 tmpfile=$(mktemp /tmp/slurm_job.XXXXXX)
 echo "Creating job file: $tmpfile"
-$GS_HOME/code/python/globalsearch/control/gs_prepare.py $1 && $GS_HOME/code/python/globalsearch/rnaseq/make_star_salmon_job.py $1 > $tmpfile && PYTHONPATH=$GS_HOME/code/python $GS_HOME/code/python/globalsearch/control/gs_submit.py $tmpfile $1
+python3 -m globalsearch.control.gs_prepare $1 && python3 -m globalsearch.rnaseq.make_star_salmon_job $1 > $tmpfile && python3 -m globalsearch.control.gs_submit $tmpfile $1
 
 #rm -f $tmpfile

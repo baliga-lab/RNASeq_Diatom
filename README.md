@@ -19,16 +19,12 @@ Starting point point for the pipeline
   * samtools (http://www.htslib.org/)
   * htseq (https://github.com/htseq/htseq)
   * [Picard tools (https://broadinstitute.github.io/picard/)]
-  * Python 3 (> 3.10)
+  * Python 3 (> 3.10), or Anaconda 3
 
 ## Installation
 
-The commands in this repository can be used right away. Assume the 
-repository is in `<yourpath>/Global_Search`. Add this to the .bashrc
-
 ```
-export GS_HOME=<yourpath/Global_Search>
-export PATH=$PATH:Global_Search/code/bin
+$ pip install globalsearch
 ```
 
 ## Configuration format description
