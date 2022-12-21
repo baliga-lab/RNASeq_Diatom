@@ -47,6 +47,15 @@ def collect_trimmed_data(data_trimmed_dir, file_ext):
         paired_mates = file + ' ' + mate_file
         pair_files.append(paired_mates)
 
-    star_input_files = ' '.join(pair_files)
+    input_files = ' '.join(pair_files)
+    return first_pair_group,second_pair_group, input_files
 
-    return first_pair_group,second_pair_group, star_input_files
+def create_result_dirs(data_trimmed_dir, fastqc_dir, results_dir, htseq_dir):
+    dirs = [data_trimmed_dir, fastqc_dir, results_dir, htseq_dir]
+    for dir in dirs:
+        # create results folder
+        #print(dir)
+        if not os.path.exists('%s' %(dir)):
+            os.makedirs('%s' %(dir))
+        else:
+            print('\033[31m %s directory exists. Not creating. \033[0m' %(dir))

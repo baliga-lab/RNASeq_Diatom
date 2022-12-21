@@ -10,20 +10,11 @@ import argparse
 import subprocess
 
 from find_files import find_fastq_files
-from trim_galore import trim_galore, collect_trimmed_data
+from trim_galore import trim_galore, collect_trimmed_data, create_result_dirs
 
 DESCRIPTION = """run_STAR_SALMON.py - run STAR and Salmon"""
 
 ####################### Create results directories ###############################
-def create_dirs(data_trimmed_dir, fastqc_dir, results_dir, htseq_dir):
-    dirs = [data_trimmed_dir, fastqc_dir, results_dir, htseq_dir]
-    for dir in dirs:
-        # create results folder
-        #print(dir)
-        if not os.path.exists('%s' %(dir)):
-            os.makedirs('%s' %(dir))
-        else:
-            print('\033[31m %s directory exists. Not creating. \033[0m' %(dir))
 
 
 ####################### Reorder Fastq files By read Name ###############################
@@ -267,7 +258,7 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
     htseq_dir = "%s/htseqcounts" % (results_dir)
 
     # Run create directories function to create directory structure
-    create_dirs(data_trimmed_dir, fastqc_dir, results_dir, htseq_dir)
+    create_result_dirs(data_trimmed_dir, fastqc_dir, results_dir, htseq_dir)
 
     print("FIRST_PAIR_FILES: ", first_pair_files)
 
