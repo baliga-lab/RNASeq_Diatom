@@ -16,6 +16,8 @@ Starting point point for the pipeline
   * Slurm cluster
   * STAR (https://github.com/alexdobin/STAR)
   * salmon (https://combine-lab.github.io/salmon/)
+  * Kallisto (https://pachterlab.github.io/kallisto/)
+  * TrimGalore (https://github.com/FelixKrueger/TrimGalore)
   * samtools (http://www.htslib.org/)
   * htseq (https://github.com/htseq/htseq)
   * [Picard tools (https://broadinstitute.github.io/picard/)]

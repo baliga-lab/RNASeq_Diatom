@@ -93,7 +93,10 @@ def check_samtools():
 
 
 def check_kallisto():
-    __check_command("kallisto", version_switch="version")
+    __check_command("kallisto", version_switch="version", num_info_components=3)
+
+def check_trim_galore():
+    __check_command("trim_galore", multiline=True)
 
 
 if __name__ == '__main__':
@@ -106,6 +109,7 @@ if __name__ == '__main__':
     check_salmon()
     check_htseq()
     check_samtools()
+    check_trim_galore()
 
     with open(args.configfile) as infile:
         config = json.load(infile)
