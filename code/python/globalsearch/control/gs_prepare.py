@@ -92,9 +92,13 @@ def check_samtools():
     __check_command("samtools", multiline=True)
 
 
+def check_kallisto():
+    __check_command("kallisto", version_switch="version")
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description=DESCRIPTION)    
+                                     description=DESCRIPTION)
     parser.add_argument('configfile', help="configuration file")
     args = parser.parse_args()
 
@@ -102,7 +106,7 @@ if __name__ == '__main__':
     check_salmon()
     check_htseq()
     check_samtools()
-    
+
     with open(args.configfile) as infile:
         config = json.load(infile)
     check_params(config)
