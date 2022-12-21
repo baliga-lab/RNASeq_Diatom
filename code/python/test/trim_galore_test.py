@@ -29,7 +29,7 @@ class TrimGaloreTest(unittest.TestCase):
         self.mem_fs.close()
 
     def test_collect_trimmed_data_simple(self):
-        """1 first pair file, 1 second pair file"""
+        """setup: 1 first pair file, 1 second pair file"""
         self.__make_input_folder(2)
         first_pair_group, second_pair_group, input_files = trim_galore.collect_trimmed_data(
             "/inputdata/R1", "gz", filesys=self.mem_fs)
