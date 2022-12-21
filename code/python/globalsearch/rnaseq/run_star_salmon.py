@@ -64,8 +64,7 @@ def order_fq(first_pair_file, second_pair_file, data_folder, sample_id):
 ### --outSAMattrRGline ID:${i%_TF_R1_val_1.fq.gz}
 ### https://github.com/BarshisLab/danslabnotebook/blob/main/CBASSAS_GenotypeScreening.md
 
-def run_star(first_pair_group, second_pair_group, results_dir, star_input_files,
-             folder_name, genome_dir):
+def run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir):
     print('\033[33mRunning STAR! \033[0m')
     outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
     star_options = ["--runThreadN", "32", "--outSAMattributes", "All",
@@ -284,10 +283,10 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
         file_count = file_count + 1
 
         # Collect Trimmed data for input into STAR
-        first_pair_group,second_pair_group,star_input_files = collect_trimmed_data(data_trimmed_dir,file_ext)
+        first_pair_group, second_pair_group, pair_files = collect_trimmed_data(data_trimmed_dir, file_ext)
 
         # Run STAR
-        run_star(first_pair_group,second_pair_group,results_dir,star_input_files, folder_name, genome_dir)
+        run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir)
 
         # Run Deduplication
         if args.dedup:

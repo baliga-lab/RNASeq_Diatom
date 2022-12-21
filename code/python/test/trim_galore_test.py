@@ -35,7 +35,8 @@ class TrimGaloreTest(unittest.TestCase):
             "/inputdata/R1", "gz", rootfs=self.mem_fs)
         self.assertEqual("/inputdata/R1/R1_1_val_1.fq.gz", first_pair_group)
         self.assertEqual("/inputdata/R1/R1_2_val_2.fq.gz", second_pair_group)
-        self.assertEqual("/inputdata/R1/R1_1_val_1.fq.gz /inputdata/R1/R1_2_val_2.fq.gz", input_files)
+        self.assertEqual([("/inputdata/R1/R1_1_val_1.fq.gz", "/inputdata/R1/R1_2_val_2.fq.gz")],
+                         input_files)
 
 if __name__ == '__main__':
     SUITE = []

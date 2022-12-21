@@ -38,11 +38,9 @@ def collect_trimmed_data(data_trimmed_dir, file_ext, rootfs=OSFS("/")):
     filesys = rootfs.opendir(data_trimmed_dir)
     # define result files
     if file_ext == "gz":
-        first_pair_trimmed = filesys.glob(GZ_PATTERN % 1)
-        second_pair_trimmed = filesys.glob(GZ_PATTERN % 2)
+        first_pair_trimmed, second_pair_trimmed = [filesys.glob(GZ_PATTERN % i) for i in [1, 2]]
     else:
-        first_pair_trimmed = filesys.glob(FQ_PATTERN % 1)
-        second_pair_trimmed = filesys.glob(FQ_PATTERN % 2)
+        first_pair_trimmed, second_pair_trimmed = [filesys.glob(FQ_PATTERN % i) for i in [1, 2]]
 
     first_pair_trimmed = [fs.path.combine(data_trimmed_dir, match.path)
                           for match in first_pair_trimmed]
@@ -55,11 +53,10 @@ def collect_trimmed_data(data_trimmed_dir, file_ext, rootfs=OSFS("/")):
 
     for file in first_pair_trimmed:
         mate_file = file.replace('_1_val_1.fq','_2_val_2.fq')
-        paired_mates = "%s %s" % (file, mate_file)
-        pair_files.append(paired_mates)
+        #paired_mates = "%s %s" % (file, mate_file)
+        pair_files.append((file, mate_file))
 
-    input_files = ' '.join(pair_files)
-    return first_pair_group, second_pair_group, input_files
+    return first_pair_group, second_pair_group, pair_files
 
 def create_result_dirs(data_trimmed_dir, fastqc_dir, results_dir, htseq_dir):
     dirs = [data_trimmed_dir, fastqc_dir, results_dir, htseq_dir]
