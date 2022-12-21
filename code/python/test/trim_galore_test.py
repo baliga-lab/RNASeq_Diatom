@@ -32,7 +32,7 @@ class TrimGaloreTest(unittest.TestCase):
         """setup: 1 first pair file, 1 second pair file"""
         self.__make_input_folder(2)
         first_pair_group, second_pair_group, input_files = trim_galore.collect_trimmed_data(
-            "/inputdata/R1", "gz", filesys=self.mem_fs)
+            "/inputdata/R1", "gz", rootfs=self.mem_fs)
         self.assertEqual("/inputdata/R1/R1_1_val_1.fq.gz", first_pair_group)
         self.assertEqual("/inputdata/R1/R1_2_val_2.fq.gz", second_pair_group)
         self.assertEqual("/inputdata/R1/R1_1_val_1.fq.gz /inputdata/R1/R1_2_val_2.fq.gz", input_files)
