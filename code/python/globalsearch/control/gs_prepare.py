@@ -51,8 +51,9 @@ def create_dirs(config):
         os.makedirs(config["log_dir"])
 
 
-def __check_command(command, num_info_components=1, check_version=None, version_switch='--version',
-                    multiline=False):
+def __check_command(command, num_info_components=1, version_index=-1,
+                    check_version=None, version_switch='--version',
+                    multiline=False, info_line=0, fail_if_not_exists=True):
     """Generic command checker, can check for different version info formats and
     restrict version numbers
     """
@@ -60,20 +61,21 @@ def __check_command(command, num_info_components=1, check_version=None, version_
         print("checking for %s... " % command, end="")
         compl_proc = subprocess.run([command, version_switch], check=True, capture_output=True)
         if multiline:
-            info_string = compl_proc.stdout.decode('utf-8').split('\n')[0].strip()
+            info_string = compl_proc.stdout.decode('utf-8').split('\n')[info_line].strip()
         else:
             info_string = compl_proc.stdout.decode('utf-8').strip()
-        if num_info_components == 2:
-            progname, version = info_string.split()
-        else:
-            version = info_string
+        comps = info_string.split()
+        version = comps[version_index]
 
         print("(found version '%s') ..." % version, end="")
         if check_version is not None and check_version != version:
             sys.exit("Unsupported version %s. Currently, only %s %s is supported" % (command, check_version))
         print("done")
     except FileNotFoundError:
-        sys.exit("Can not find %s (not installed or not in PATH)" % command)
+        if fail_if_not_exists:
+            sys.exit("Can not find %s (not installed or not in PATH)" % command)
+        else:
+            print("WARN: %s does not exist, but is optional" % command)
 
 
 def check_salmon():
@@ -89,14 +91,15 @@ def check_htseq():
 
 
 def check_samtools():
-    __check_command("samtools", multiline=True)
+    __check_command("samtools", multiline=True, num_info_components=2)
 
 
 def check_kallisto():
-    __check_command("kallisto", version_switch="version", num_info_components=3)
+    __check_command("kallisto", version_switch="version", num_info_components=3,
+                    fail_if_not_exists=False)
 
 def check_trim_galore():
-    __check_command("trim_galore", multiline=True)
+    __check_command("trim_galore", num_info_components=2, multiline=True, info_line=3)
 
 
 if __name__ == '__main__':
@@ -110,6 +113,7 @@ if __name__ == '__main__':
     check_htseq()
     check_samtools()
     check_trim_galore()
+    check_kallisto()
 
     with open(args.configfile) as infile:
         config = json.load(infile)
