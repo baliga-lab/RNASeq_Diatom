@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import glob
 import sys
 import os
@@ -9,15 +10,16 @@ RUN_DIR = "/proj/omics4tb2/Global_Search"
 DATA_DIR = "%s/Pilot_Pass/X204SC21081158-Z01-F003/raw_data" % RUN_DIR
 GENOME_DIR = "%s/reference_genomes/acerv_smic-reefGenomics" % RUN_DIR
 TRANSCRIPTOME_FILE = "%s/Acerv_Smic-ReefGenomics_merged.fasta" % GENOME_DIR
-RESULTS_FOLDER = "%s/Pilot_Pass/X204SC21081158-Z01-F003/RNASeq_Analysis" % RUN_DIR
+#RESULTS_FOLDER = "%s/Pilot_Pass/X204SC21081158-Z01-F003/RNASeq_Analysis" % RUN_DIR
+RESULTS_FOLDER = "/proj/omics4tb2/wwu/Global_Search/kallisto-out"
 
 ############# Functions ##############
 ####################### Run Kalisto ###############################
 def run_kallisto(first_pair_group,second_pair_group,results_dir,kallisto_input_files):
     print
     print('\033[33mRunning kallisto! \033[0m')
-    kallisto_cmd = '/users/sturkars/kallisto/kallisto quant -i %s/Acerv_Smic-reefGenomics_kallistoindex %s -o %s  -b 100 --bias -t 4 --rf-stranded' % (GENOME_DIR, kallisto_input_files, RESULTS_DIR)
-    print('Kallisto run command:%s' % kallisto_cmd)
+    kallisto_cmd = '/users/sturkars/kallisto/kallisto quant -i %s/Acerv_Smic-reefGenomics_kallistoindex %s -o %s  -b 100 --bias -t 4 --rf-stranded' % (GENOME_DIR, kallisto_input_files, results_dir)
+    print('Kallisto run command: "%s"' % kallisto_cmd)
     os.system(kallisto_cmd)
 
  ####################### Create Kallisto index ###############################
@@ -46,7 +48,7 @@ def run_pipeline(data_folder):
     data_trimmed_dir = "%s/%s/trimmed" % (RESULTS_FOLDER, folder_name)
     fastqc_dir = "%s/%s/fastqc_results" % (RESULTS_FOLDER, folder_name)
     results_dir = "%s/%s/results_Kallisto_Acerv_Smic-reefGenomics" %(RESULTS_FOLDER, folder_name)
-    htseq_dir = "%s/htseqcounts" % (RESULTS_FOLDER, folder_name)
+    htseq_dir = "%s/htseqcounts" % RESULTS_FOLDER
 
     # Run create directories function to create directory structure
     create_result_dirs(data_trimmed_dir,fastqc_dir,results_dir, htseq_dir)
@@ -80,7 +82,9 @@ def run_pipeline(data_folder):
         file_count += 1
 
         # Run folder level salmon analysis
+        print("FILE_EXT: ", file_ext)
         first_pair_group,second_pair_group,kallisto_input_files = collect_trimmed_data(data_trimmed_dir,file_ext)
+        print("FOUND FILES: ", kallisto_input_files)
         run_kallisto(first_pair_group,second_pair_group,results_dir,kallisto_input_files)
 
         folder_count += 1

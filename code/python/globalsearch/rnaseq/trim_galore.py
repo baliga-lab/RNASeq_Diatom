@@ -1,5 +1,6 @@
 import os
 import glob
+from fs.osfs import OSFS
 
 def trim_galore(first_pair_file, second_pair_file, folder_name, sample_id, file_ext, data_trimmed_dir,
                 fastqc_dir):
@@ -30,18 +31,22 @@ def trim_galore(first_pair_file, second_pair_file, folder_name, sample_id, file_
 
 ####################### Collect trimmed data files ###############################
 
-def collect_trimmed_data(data_trimmed_dir, file_ext):
+def collect_trimmed_data(data_trimmed_dir, file_ext, filesys=OSFS("/")):
     # define result files
     if file_ext == "gz":
-        first_pair_trimmed = glob.glob('%s/*_val_1.fq.gz'%(data_trimmed_dir))
-        second_pair_trimmed = glob.glob('%s/*_val_2.fq.gz'%(data_trimmed_dir))
+        first_pair_trimmed = filesys.glob('%s/*_val_1.fq.gz'%(data_trimmed_dir))
+        second_pair_trimmed = filesys.glob('%s/*_val_2.fq.gz'%(data_trimmed_dir))
     else:
-        first_pair_trimmed = glob.glob('%s/*_val_1.fq'%(data_trimmed_dir))
-        second_pair_trimmed = glob.glob('%s/*_val_2.fq'%(data_trimmed_dir))
+        first_pair_trimmed = filesys.glob('%s/*_val_1.fq' % (data_trimmed_dir))
+        second_pair_trimmed = filesys.glob('%s/*_val_2.fq' % (data_trimmed_dir))
+    first_pair_trimmed = [match.path for match in first_pair_trimmed]
+    second_pair_trimmed = [match.path for match in second_pair_trimmed]
+
     print('Trimmed Files:\n 1st:%s \n 2nd:%s' %(first_pair_trimmed,second_pair_trimmed))
     first_pair_group = ' '.join(first_pair_trimmed)
     second_pair_group = ' '.join(second_pair_trimmed)
     pair_files = []
+
     for file in first_pair_trimmed:
         mate_file = file.replace('_1_val_1.fq','2_val_2.fq')
         paired_mates = file + ' ' + mate_file
