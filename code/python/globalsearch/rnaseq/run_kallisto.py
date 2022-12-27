@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
+
+"""
+RNASeq Analysis pipeline using Kallisto
+"""
 import glob, sys, os, re, subprocess
 from trim_galore import trim_galore, collect_trimmed_data, create_result_dirs
+import argparse
 
 # data and results directories
-RUN_DIR = "/proj/omics4tb2/Global_Search"
-DATA_DIR = "%s/Pilot_Pass/X204SC21081158-Z01-F003/raw_data" % RUN_DIR
-GENOME_DIR = "%s/reference_genomes/acerv_smic-reefGenomics" % RUN_DIR
-TRANSCRIPTOME_FILE = "%s/Acerv_Smic-ReefGenomics_merged.fasta" % GENOME_DIR
-RESULTS_FOLDER = "/proj/omics4tb2/wwu/Global_Search/kallisto-out"
+# These were the original examples
+#RUN_DIR = "/proj/omics4tb2/Global_Search"
+#DATA_DIR = "%s/Pilot_Pass/X204SC21081158-Z01-F003/raw_data" % RUN_DIR
+#GENOME_DIR = "%s/reference_genomes/acerv_smic-reefGenomics" % RUN_DIR
+#TRANSCRIPTOME_FILE = "%s/Acerv_Smic-ReefGenomics_merged.fasta" % GENOME_DIR
 
 ############# Functions ##############
 ####################### Run Kalisto ###############################
@@ -43,7 +48,7 @@ def kallisto_index(index_path, transcriptome_path):
     compl_proc = subprocess.run(command, check=True, capture_output=False)
 
 ####################### Running the Pipeline ###############################
-def run_pipeline(data_folder):
+def run_pipeline(data_folder, results_folder, genome_dir, transcriptome_file, args):
     folder_count = 1
 
     # Loop through each data folder
@@ -55,10 +60,11 @@ def run_pipeline(data_folder):
     print(first_pair_files)
 
     # Program specific results directories
-    data_trimmed_dir = "%s/%s/trimmed" % (RESULTS_FOLDER, folder_name)
-    fastqc_dir = "%s/%s/fastqc_results" % (RESULTS_FOLDER, folder_name)
-    results_dir = "%s/%s/results_Kallisto_Acerv_Smic-reefGenomics" %(RESULTS_FOLDER, folder_name)
-    htseq_dir = "%s/htseqcounts" % RESULTS_FOLDER
+    organism = os.path.basename(genome_dir)
+    data_trimmed_dir = os.path.join(results_folder, folder_name, trimmed)
+    fastqc_dir = os.path.join(results_folder, folder_name, fastqc_results)
+    results_dir = os.path.join(results_folder, folder_name, organism)
+    htseq_dir = os.path.join(results_folder, "htseqcounts")
 
     # Run create directories function to create directory structure
     create_result_dirs(data_trimmed_dir,fastqc_dir,results_dir, htseq_dir)
@@ -94,17 +100,28 @@ def run_pipeline(data_folder):
 
         # Run folder level salmon analysis
         first_pair_group, second_pair_group, pair_files = collect_trimmed_data(data_trimmed_dir,file_ext)
-        index_path = '%s/Acerv_Smic-reefGenomics_kallistoindex' % RESULTS_FOLDER
-        kallisto_index(index_path, TRANSCRIPTOME_FILE)
+        index_path = os.path.join(results_folder, "%s_kallistoindex" % organism)
+        kallisto_index(index_path, transcriptome_file)
         run_kallisto(index_path, results_dir, pair_files)
 
         folder_count += 1
 
     return data_trimmed_dir,fastqc_dir,results_dir
 
+
+DESCRIPTION = """run_kallisto.py - run Kallisto pipeline"""
+
 if __name__ == '__main__':
-    folder_name = str(sys.argv[1])
-    print(folder_name)
-    data_folder = "%s/%s" % (DATA_DIR, folder_name)
-    print(data_folder)
-    data_trimmed_dir, fastqc_dir, results_dir = run_pipeline(data_folder)
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description=DESCRIPTION)
+    parser.add_argument('genomedir', help='genome directory')
+    parser.add_argument('dataroot', help="parent of input directory")
+    parser.add_argument('indir', help="input directory without the input dir part")
+    parser.add_argument('transcriptome_file', help="path to transcriptome_file")
+    parser.add_argument('outdir', help='output directory')
+    args = parser.parse_args()
+
+    print("Processing directory %s" % args.indir)
+    data_folder = os.path.join(args.dataroot, folder_name)
+    data_trimmed_dir, fastqc_dir, results_dir = run_pipeline(data_folder, args.outdir, args.genomedir,
+                                                             args.transcriptome_file, args)
