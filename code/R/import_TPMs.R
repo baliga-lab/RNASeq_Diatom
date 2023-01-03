@@ -8,8 +8,6 @@ organisms = paste(organism1, organism2, sep='_')
 cat("ORGANISMS: ", organisms, "\n", sep='')
 
 # derived constants
-STAR_SALMON_QUANT_SF_PATH = paste("/results_STAR_Salmon/salmon_quant/quant.sf", sep="")
-STAR_SALMON_REGEXP = "*/*salmon_quant/quant.sf"
 KALLISTO_ABUNDANCE_PATH = paste("/results_Kallisto_", organisms, "-reefGenomics/abundance.tsv", sep="")
 BWA_SALMON_QUANT_SF_PATH = paste("/results_bwa_Salmon_", organisms, "-reefGenomics/salmon_quant/quant.sf", sep="")
 BWA_SALMON_REGEXP = paste('*', BWA_SALMON_QUANT_SF_PATH, sep='')
@@ -22,8 +20,21 @@ quant_extractor = function(fname) {
   return(tibble(data$Name, data$TPM))
 }
 
+# Remove the path components from the column names of the tibble
+# x: a vector of column names
+remove_quant_path = function(x) {
+   return (unlist(lapply(x, function(s) {
+     if (is.character(s) && endsWith(s, "quant.sf")) {
+       return (unlist(strsplit(s, '/'))[1])
+     }
+     return(s)
+   })));
+}
+
 ## Extract Salmon calculated quants
-extract_salmon_quants <- function(analysis_dir, outdir, regexp) {
+STAR_SALMON_REGEXP = "*/*salmon_quant/quant.sf"
+STAR_SALMON_QUANT_SF_PATH = paste("/results_STAR_Salmon/salmon_quant/quant.sf", sep="")
+extract_salmon_quants <- function(analysis_dir, outdir, regexp=STAR_SALMON_REGEXP) {
   message("\nExtract Salmon calculated quants")
   message(paste("dir: [", analysis_dir, "]", sep=''))
   message(paste("regexp: [", regexp, "]", sep=''))
@@ -36,8 +47,10 @@ extract_salmon_quants <- function(analysis_dir, outdir, regexp) {
     set_names(.) %>%
     map_dfr(quant_extractor, .id = "file.ID") %>%
     pivot_wider(names_from = `file.ID`, values_from=`data$TPM`) %>%
+    # strip the input directory part out of the column name
     rename_with(~ gsub(analysis_dir, "", .x, fixed=TRUE)) %>%
-    rename_with(~ gsub(STAR_SALMON_QUANT_SF_PATH, "", .x, fixed=TRUE)) %>%
+    # remove the last path part from the name
+    rename_with(~ remove_quant_path(.)) %>%
     rename(gene_id = `data$Name`)
 
   salmon_df_org1 <- salmon_df %>% filter(grepl(organism1, gene_id))
