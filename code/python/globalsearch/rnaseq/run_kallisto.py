@@ -61,8 +61,8 @@ def run_pipeline(data_folder, results_folder, genome_dir, transcriptome_file, ar
 
     # Program specific results directories
     organism = os.path.basename(genome_dir)
-    data_trimmed_dir = os.path.join(results_folder, folder_name, trimmed)
-    fastqc_dir = os.path.join(results_folder, folder_name, fastqc_results)
+    data_trimmed_dir = os.path.join(results_folder, folder_name, "trimmed")
+    fastqc_dir = os.path.join(results_folder, folder_name, "fastqc_results")
     results_dir = os.path.join(results_folder, folder_name, organism)
     htseq_dir = os.path.join(results_folder, "htseqcounts")
 
@@ -122,6 +122,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print("Processing directory %s" % args.indir)
-    data_folder = os.path.join(args.dataroot, folder_name)
+    data_folder = os.path.join(args.dataroot, args.indir)
     data_trimmed_dir, fastqc_dir, results_dir = run_pipeline(data_folder, args.outdir, args.genomedir,
                                                              args.transcriptome_file, args)
