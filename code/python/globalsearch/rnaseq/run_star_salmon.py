@@ -108,7 +108,6 @@ def dedup(results_dir,folder_name):
     nosingletonCollated_bam = '%sNoSingletonCollated.out.bam' % (outfile_prefix)
 
     # STAR mark duplicates
-    #star_markdup_cmd = 'STAR --runThreadN 32 --runMode inputAlignmentsFromBAM --bamRemoveDuplicatesType UniqueIdenticalNotMulti --inputBAMfile %s --outFileNamePrefix %s' % (aligned_bam,outfile_prefix)
     star_markdup_command = ['STAR', '--runThreadN', '32',
                             '--runMode',
                             'inputAlignmentsFromBAM',
@@ -118,47 +117,16 @@ def dedup(results_dir,folder_name):
     star_markdup_cmd = ' '.join(star_markdup_command)
 
     # removesingletons from STAR
-    #rmsingletonsSTAR_cmd = 'samtools view -@ 8 -b -F 0x400 %s > %s' %(markdupSTAR_bam,nosingleton_bam)
     rmsingletonsSTAR_command = ['samtools', 'view', '-@', '8',
                                 '-b', '-F', '0x400', markdupSTAR_bam,
                                 '>', nosingleton_bam]
     rmsingletonsSTAR_cmd = ' '.join(rmsingletonsSTAR_command)
 
     # Collate reads by name
-    #collatereadsSTAR_cmd = 'samtools sort -o %s -n -@ 8 %s' %(nosingletonCollated_bam, nosingleton_bam)
     collatereadsSTAR_command = ['samtools', 'sort', '-o',
                                 nosingletonCollated_bam,
                                 '-n', '-@', '8', nosingleton_bam]
     collatereadsSTAR_cmd = ' '.join(collatereadsSTAR_command)
-
-    """
-    ## Samtools based BAM duplicate removal
-
-    # Add ms and MC tags for markdup to use later:
-    fixmate_command = ['samtools', 'fixmate', '-m', aligned_bam, fixmate_bam]
-    fixmate_cmd = ' '.join(fixmate_command)
-    print('samtools fixmate run command:%s' % fixmate_cmd)
-    compl_proc = subprocess.run(fixmate_command, check=True, capture_output=False)
-
-    # position order
-    sort_command = ['samtools', 'sort', '-o', ordered_bam, fixmate_bam]
-    sort_cmd = ' '.join(sort_command)
-    print('samtools sort run command:%s' % sort_cmd)
-    compl_proc = subprocess.run(sort_command, check=True, capture_output=False)
-
-    # mark duplicates
-    markdup_command = ['samtools', 'markdup', '-r', '-s', ordered_bam, markdup_bam]
-    markdup_cmd = ' '.join(markdup_command)
-    print('samtools mark diuplicates run command:%s' % markdup_cmd)
-    compl_proc = subprocess.run(markdup_command, check=True, capture_output=False)
-
-    # remove singletons
-    rmsingletons_command = ['samtools', 'view', '-@', '8',
-                            '-F', '0x08', '-b', markdup_bam, '>', nosingleton_bam]
-    rmsingletons_cmd = ' '.join(rmsingletons_command)
-    print('samtools rm singletons run command:%s' % rmsingletons_cmd)
-    os.system(rmsingletons_cmd)  # WW: use subprocess.run(), test shell interaction
-    """
 
     ## STAR based BAM duplicate removal
     # Mark duplicates with STAR
@@ -187,8 +155,8 @@ def run_salmon_quant(results_dir, folder_name, genome_fasta):
     else:
         salmon_input = '%sAligned.out.bam' % (outfile_prefix)
 
-    cmd = 'salmon quant -t %s -l A -a %s -o %s/%s_salmon_quant' % (genome_fasta, salmon_input, results_dir,args.salmonPrefix)
-    print('salmon-count run command:%s' %cmd)
+    cmd = 'salmon quant -t %s -l A -a %s -o %s/%s_salmon_quant' % (genome_fasta, salmon_input, results_dir, args.salmonPrefix)
+    print('salmon-count run command: %s' % cmd)
     os.system(cmd)
 
 
@@ -213,7 +181,6 @@ def create_genome_index(genome_dir, genome_fasta):
                      '--genomeFastaFiles', genome_fasta,
                      '--genomeChrBinNbits', '16',
                      '--genomeSAindexNbases', '12']
-    #index_cmd = 'STAR --runMode genomeGenerate --runThreadN 32 --genomeDir %s --genomeFastaFiles %s --genomeChrBinNbits 16 --genomeSAindexNbases 12'% (genome_dir,genome_fasta)
     index_cmd = ' '.join(index_command)
     print(index_cmd)
 
@@ -222,7 +189,6 @@ def create_genome_index(genome_dir, genome_fasta):
         print ('Genome indexes exist. Not creating!')
     else:
         print ('Creating genome indexes')
-        #os.system(index_cmd)
         compl_proc = subprocess.run(index_command, check=True, capture_output=False)
 
 

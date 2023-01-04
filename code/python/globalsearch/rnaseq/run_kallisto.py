@@ -69,6 +69,9 @@ def run_pipeline(data_folder, results_folder, genome_dir, transcriptome_file, ar
     # Run create directories function to create directory structure
     create_result_dirs(data_trimmed_dir,fastqc_dir,results_dir, htseq_dir)
 
+    index_path = os.path.join(results_folder, "%s_kallistoindex" % organism)
+    kallisto_index(index_path, transcriptome_file)
+
     # Loop through each file and create filenames
     file_count = 1
     for first_pair_file in first_pair_files:
@@ -100,8 +103,6 @@ def run_pipeline(data_folder, results_folder, genome_dir, transcriptome_file, ar
 
         # Run folder level salmon analysis
         first_pair_group, second_pair_group, pair_files = collect_trimmed_data(data_trimmed_dir,file_ext)
-        index_path = os.path.join(results_folder, "%s_kallistoindex" % organism)
-        kallisto_index(index_path, transcriptome_file)
         run_kallisto(index_path, results_dir, pair_files)
 
         folder_count += 1
