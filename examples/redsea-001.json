@@ -9,6 +9,7 @@
     "includes": ["R1"],
     "include_file": "",
     "deduplicate_bam_files": false,
+    "rnaseq_algorithm": "star_salmon",
     "star_options": {
         "outFilterMismatchNmax": 10,
         "outFilterMismatchNoverLmax": 0.3,
