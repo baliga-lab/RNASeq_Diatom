@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ "$#" -ne 1 ] ; then
+	echo "Usage: gs_prepare <config-file>"
+	exit 1
+fi
+
+python3 -m globalsearch.control.gs_prepare $1

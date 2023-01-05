@@ -1,6 +1,11 @@
 Changes
 =======
 
+Version 0.0.6, 2023/01/05
+-------------------------
+
+gs_prepare as separate command tool
+
 Version 0.0.5, 2023/01/05
 -------------------------
 
