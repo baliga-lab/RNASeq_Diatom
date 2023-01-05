@@ -90,6 +90,11 @@ def run_star(first_pair_group, second_pair_group, results_dir, folder_name, geno
     command += [ "--readFilesIn", first_pair_group,
                  second_pair_group,
                  "--outFileNamePrefix", outfile_prefix]
+    if args.outSAMattributes != "Standard":
+        out_sam_attrs = args.outSAMattributes.split()
+        command.append('--outSAMattributes')
+        command += out_sam_attrs
+
     cmd = ' '.join(command)
     print('STAR run command:%s' % cmd)
     compl_proc = subprocess.run(command, check=True, capture_output=False)
@@ -290,6 +295,7 @@ if __name__ == '__main__':
     parser.add_argument('--outFilterMismatchNoverLmax', nargs='?', const=0.3, type=float)
     parser.add_argument('--outFilterScoreMinOverLread', nargs='?', const=0.66, type=float)
     parser.add_argument('--outFilterMatchNmin', nargs='?', const=0, type=int)
+    parser.add_argument('--outSAMattributes', nargs='?', type=str, default="Standard")
 
     #### Add argument for running star in two pass mode
     ### Kate to contribute relevant code

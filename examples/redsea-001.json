@@ -15,7 +15,8 @@
         "outFilterMismatchNoverLmax": 0.3,
         "outFilterScoreMinOverLread": 0.66,
         "outFilterMatchNmin": 0,
-        "twopassMode": false
+        "twopassMode": false,
+        "outSAMattributes": "Standard"
     },
     "sbatch_options": {
         "star_salmon": {

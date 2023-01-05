@@ -10,6 +10,31 @@ import os, sys, glob, subprocess
 
 DESCRIPTION = """gs_prepare.py - prepare data for workflow submission"""
 
+OUTSAM_ATTRS_STD = {
+    "NH", "HI", "AS", "nM", "NM", "MD", "jM", "jI", "XS", "MC", "ch"
+}
+OUTSAM_ATTRS_EXT = { "vA", "vG", "vW", "CR", "CY", "UR", "UY" }
+OUTSAM_ATTRS_EXT2 = { "rB", "vR" }
+OUTSAM_ATTRS_SPECIAL = { "None", "Standard", "All" }
+OUTSAM_ATTRS_MULTI = OUTSAM_ATTRS_STD | OUTSAM_ATTRS_EXT | OUTSAM_ATTRS_EXT2
+OUTSAM_ATTRS_SINGLE = OUTSAM_ATTRS_STD | OUTSAM_ATTRS_EXT | OUTSAM_ATTRS_EXT2 | OUTSAM_ATTRS_SPECIAL
+
+
+def check_star_options(star_options):
+    try:
+        outsam_attrs = star_options['outSAMattributes'].split()
+        if len(outsam_attrs) == 1:
+            if not outsam_attrs[0] in OUTSAM_ATTRS_SINGLE:
+                raise ValueError("STAR options: outSAMattributes: '%s'" % [outsam_attrs[0]])
+        else:
+            for attr in outsam_attrs:
+                if not attr in OUTSAM_ATTRS_MULTI:
+                    raise ValueError("STAR options: outSAMattributes: '%s'" % attr)
+    except KeyError:
+        # not specified -> doesn't matter
+        pass
+
+
 def check_params(config):
     """ensures integrity of the parameters"""
     print("checking integrity of parameters...", end="")
