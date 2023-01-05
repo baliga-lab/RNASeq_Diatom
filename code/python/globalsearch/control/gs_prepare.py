@@ -25,11 +25,11 @@ def check_star_options(star_options):
         outsam_attrs = star_options['outSAMattributes'].split()
         if len(outsam_attrs) == 1:
             if not outsam_attrs[0] in OUTSAM_ATTRS_SINGLE:
-                raise ValueError("STAR options: outSAMattributes: '%s'" % [outsam_attrs[0]])
+                raise ValueError("STAR options (single): outSAMattributes: '%s'" % [outsam_attrs[0]])
         else:
             for attr in outsam_attrs:
                 if not attr in OUTSAM_ATTRS_MULTI:
-                    raise ValueError("STAR options: outSAMattributes: '%s'" % attr)
+                    raise ValueError("STAR options (multiple): outSAMattributes: '%s'" % attr)
     except KeyError:
         # not specified -> doesn't matter
         pass
@@ -64,6 +64,11 @@ def check_params(config):
             inp_dir = os.path.join(config["input_dir"], incl)
             if not os.path.exists(inp_dir):
                 sys.exit("Input directory '%s' does not exist" % inp_dir)
+    try:
+        check_star_options(config['star_options'])
+    except ValueError as e:
+                sys.exit(str(e))
+
     print("done")
 
 

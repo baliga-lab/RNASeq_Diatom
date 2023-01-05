@@ -19,9 +19,16 @@ class CheckParamsTest(unittest.TestCase):
         check_star_options({'outSAMattributes': 'All'})
 
     def test_check_star_options_out_samattrs_single_fail(self):
-        """check the special attributes of outSAMattributes"""
+        """check error on non existing value"""
         self.assertRaises(ValueError, check_star_options, {'outSAMattributes': 'notexists'})
 
+    def test_check_star_options_out_samattrs_multi_fail(self):
+        """check error when special attribute is used in multi context"""
+        self.assertRaises(ValueError, check_star_options, {'outSAMattributes': 'All None'})
+
+    def test_check_star_options_out_samattrs_multi_success(self):
+        """check successful multi context"""
+        check_star_options({'outSAMattributes': 'NH HI'})
 
 if __name__ == '__main__':
     SUITE = []
