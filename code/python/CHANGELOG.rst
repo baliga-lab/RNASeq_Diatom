@@ -1,6 +1,16 @@
 Changes
 =======
 
+Version 0.0.5, 2023/01/05
+-------------------------
+
+relative import in run_star_salmon.py
+
+Version 0.0.4, 2023/01/05
+-------------------------
+
+configurable outSAMattributes
+
 Version 0.0.3, 2022/12/15
 -------------------------
 

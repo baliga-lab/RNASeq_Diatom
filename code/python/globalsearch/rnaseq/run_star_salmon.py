@@ -9,8 +9,8 @@ import glob, sys, os, string, datetime, re
 import argparse
 import subprocess
 
-from find_files import find_fastq_files
-from trim_galore import trim_galore, collect_trimmed_data, create_result_dirs
+from .find_files import find_fastq_files
+from .trim_galore import trim_galore, collect_trimmed_data, create_result_dirs
 
 DESCRIPTION = """run_STAR_SALMON.py - run STAR and Salmon"""
 
