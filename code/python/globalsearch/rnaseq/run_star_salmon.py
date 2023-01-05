@@ -67,7 +67,7 @@ def order_fq(first_pair_file, second_pair_file, data_folder, sample_id):
 def run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir):
     print('\033[33mRunning STAR! \033[0m')
     outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
-    star_options = ["--runThreadN", "32", "--outSAMattributes", "All",
+    star_options = ["--runThreadN", "32",
                     "--outFilterType", "Normal",
                     "--outSAMstrandField", "intronMotif",
                     "--outFilterIntronMotifs", "RemoveNoncanonical",
