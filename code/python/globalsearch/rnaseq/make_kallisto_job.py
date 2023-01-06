@@ -55,4 +55,7 @@ if __name__ == '__main__':
     config['sbatch_extras'] = make_sbatch_extras(config)
     config['sbatch_options'] = make_sbatch_options(config)
 
+    data_folders = rnaseq_data_folder_list(config)
+    config["data_folders"] = ' '.join(data_folders)
+    config["array_range"] = "0-%d" % (len(data_folders) - 1)
     print(templ.render(config))
