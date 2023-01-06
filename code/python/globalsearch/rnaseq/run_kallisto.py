@@ -4,7 +4,7 @@
 RNASeq Analysis pipeline using Kallisto
 """
 import glob, sys, os, re, subprocess
-from trim_galore import trim_galore, collect_trimmed_data, create_result_dirs
+from .trim_galore import trim_galore, collect_trimmed_data, create_result_dirs
 import argparse
 
 # data and results directories

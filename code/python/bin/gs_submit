@@ -8,6 +8,6 @@ fi
 
 tmpfile=$(mktemp /tmp/slurm_job.XXXXXX)
 echo "Creating job file: $tmpfile"
-python3 -m globalsearch.control.gs_prepare $1 && python3 -m globalsearch.rnaseq.make_star_salmon_job $1 > $tmpfile && RES=$(sbatch --parsable $tmpfile)
+python3 -m globalsearch.control.gs_prepare $1 && python3 -m globalsearch.rnaseq.make_star_salmon_job $1 > $tmpfile && RES=$(sbatch --parsable $tmpfile) && echo $RES
 
 #rm -f $tmpfile
