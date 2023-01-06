@@ -5,20 +5,26 @@ import os
 import argparse
 import json
 
+from globalsearch.rnaseq.find_files import rnaseq_data_folder_list
+
 TEMPLATE = """#!/bin/bash
 
 #SBATCH -J star_salmon_{{genome}}
 #SBATCH -o {{log_dir}}/"%j".out
 #SBATCH -e {{log_dir}}/"%j".out
+#SBATCH --array={{array_range}}
+
 {{sbatch_options}}
 
-data_folder=$1
+echo "ARRAY TASK ID: $SLURM_ARRAY_TASK_ID"
+data_folders=({{data_folders}})
+data_folder=${data_folders[$SLURM_ARRAY_TASK_ID]}
 star_prefix="star_{{star_options.outFilterMismatchNmax}}_{{star_options.outFilterMismatchNoverLmax}}_{{star_options.outFilterScoreMinOverLread}}_{{star_options.outFilterMatchNmin}}{{dedup_prefix}}"
 salmon_prefix="salmon_{{star_options.outFilterMismatchNmax}}_{{star_options.outFilterMismatchNoverLmax}}_{{star_options.outFilterScoreMinOverLread}}_{{star_options.outFilterMatchNmin}}{{dedup_prefix}}"
 
 {{sbatch_extras}}
 
-$GS_HOME/code/python/globalsearch/rnaseq/run_star_salmon.py {{twopass_mode}} {{fastq_patterns}} --outSAMattributes {{star_options.outSAMattributes}} --outFilterMismatchNmax {{star_options.outFilterMismatchNmax}} --outFilterMismatchNoverLmax {{star_options.outFilterMismatchNoverLmax}} --outFilterScoreMinOverLread {{star_options.outFilterScoreMinOverLread}} --outFilterMatchNmin {{star_options.outFilterMatchNmin}} {{dedup_option}} --starPrefix $star_prefix --salmonPrefix $salmon_prefix {{genome_gff_option}} {{genome_fasta_option}} {{genome_dir}} {{input_dir}} $data_folder {{output_dir}}
+python3 -m globalsearch.rnaseq.run_star_salmon {{twopass_mode}} {{fastq_patterns}} --outSAMattributes {{star_options.outSAMattributes}} --outFilterMismatchNmax {{star_options.outFilterMismatchNmax}} --outFilterMismatchNoverLmax {{star_options.outFilterMismatchNoverLmax}} --outFilterScoreMinOverLread {{star_options.outFilterScoreMinOverLread}} --outFilterMatchNmin {{star_options.outFilterMatchNmin}} {{dedup_option}} --starPrefix $star_prefix --salmonPrefix $salmon_prefix {{genome_gff_option}} {{genome_fasta_option}} {{genome_dir}} {{input_dir}} $data_folder {{output_dir}}
 """
 
 DESCRIPTION = """make_star_salmon_job.py - Create STAR Salmon job file for Slurm"""
@@ -72,4 +78,8 @@ if __name__ == '__main__':
             config['genome_fasta_option'] = '--genome_fasta %s' % genome_fasta
     except:
         pass
+
+    data_folders = rnaseq_data_folder_list(config)
+    config["data_folders"] = ' '.join(data_folders)
+    config["array_range"] = "0-%d" % (len(data_folders) - 1)
     print(templ.render(config))
