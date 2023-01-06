@@ -17,13 +17,14 @@ from pprint import pprint
 
 import logging
 
+from globalsearch.rnaseq.run_star_salmon import create_genome_index as idx_star_genome
+from globalsearch.rnaseq.run_kallisto import kallisto_index as idx_kallisto_genome
+
 # get the airflow.task logger
 task_logger = logging.getLogger('airflow.task')
 
 
 LOG_DIR = "/Users/weiju/tmp"
-OUT_DIR = "/Users/weiju/tmp"
-
 ERROR_LOG = os.path.join(LOG_DIR, "globalsearch_errors.log")
 STATUS_LOG = os.path.join(LOG_DIR, "globalseach_status.log")
 
@@ -31,7 +32,7 @@ STATUS_LOG = os.path.join(LOG_DIR, "globalseach_status.log")
 # DEFAULT VALUES IS the example files
 CONFIG_DIR = "/Users/weiju/Projects/ISB/Global_Search/examples"
 CONFIG_FILE = os.path.join(CONFIG_DIR, "redsea-001.json")
-
+DEBUGGING = True
 
 with DAG(
         'GlobalSearch',
@@ -68,19 +69,54 @@ with DAG(
             return "idx_genome_kallisto"
 
     # we can obtain the run id through {{run_id}}
-    gs_prepare = BashOperator(
-        task_id='prepare',
-        bash_command='echo "Preparing parameters for {{params.config_file}}" >> %s 2>&1' % (STATUS_LOG),
-    )
+    if DEBUGGING:
+        gs_prepare = BashOperator(
+            task_id='prepare',
+            bash_command='echo "gs_prepare {{params.config_file}}"'
+        )
+    else:
+        gs_prepare = BashOperator(
+            task_id='prepare',
+            bash_command='gs_prepare {{params.config_file}}'
+        )
+
+
     decide_algo = BranchPythonOperator(
         task_id="decide_algorithm",
         provide_context=True,
         python_callable=_choose_algorithm
     )
-    index_star = BashOperator(
-        task_id='idx_genome_star',
-        bash_command='echo "Index the genome...done" >> %s 2>&1' % (STATUS_LOG),
-    )
+
+    """
+    STAR Based Genome Indexing
+    """
+    @task(task_id="idx_genome_star")
+    def idx_genome_star_task(ds=None, **kwargs):
+        run_id = kwargs['run_id']
+        config_file = kwargs['params']['config_file']
+        with open(config_file) as infile:
+            config = json.load(infile)
+        genome_dir = config['genome_dir']
+        genome_fasta = config['genome_fasta']
+        task_logger.info("start indexing the genome for STAR")
+        if not DEBUGGING:
+            idx_star_genome(genome_dir, genome_fasta)
+        task_logger.info("finished indexing the genome for STAR")
+        return "Indexed STAR in dir: '%s' on file '%s' finished" % (genome_dir, genome_fasta)
+
+    idx_genome_star = idx_genome_star_task()
+
+    """
+    Kallisto Based Genome Indexing
+    """
+    @task(task_id="idx_genome_kallisto")
+    def idx_genome_kallisto_task(ds=None, **kwargs):
+        # TODO
+        return "Indexed Kallisto"
+
+    idx_genome_kallisto = idx_genome_kallisto_task()
+
+
     star_salmon = BashOperator(
         task_id='starsalmon',
         bash_command='echo "Submitting STAR/salmon jobs...done" >> %s 2>&1' % (STATUS_LOG),
@@ -112,10 +148,6 @@ with DAG(
     )
 
 
-    index_kallisto = BashOperator(
-        task_id='idx_genome_kallisto',
-        bash_command='echo "Index the genome...done" >> %s 2>&1' % (STATUS_LOG),
-    )
     kallisto = BashOperator(
         task_id='kallisto',
         bash_command='echo "Submitting Kallisto jobs...done" >> %s 2>&1' % (STATUS_LOG),
@@ -131,10 +163,10 @@ with DAG(
     please trigger this manual with your input data paths as your parameters.
     """
 
-    gs_prepare >> decide_algo >> [index_star, index_kallisto]
-    index_star >> [star_salmon, orthofinder]
+    gs_prepare >> decide_algo >> [idx_genome_star, idx_genome_kallisto]
+    idx_genome_star >> [star_salmon, orthofinder]
     star_salmon >> process_star_results
     star_salmon >> spladder >> process_spladder_results
     orthofinder >> process_orthofinder_results
-    index_kallisto >> kallisto >> process_kallisto_results
+    idx_genome_kallisto >> kallisto >> process_kallisto_results
 
