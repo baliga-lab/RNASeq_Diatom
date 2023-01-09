@@ -1,6 +1,11 @@
 Changes
 =======
 
+Version 0.0.8, 2023/01/09
+-------------------------
+
+Run Kallisto jobs from gs_submit
+
 Version 0.0.7, 2023/01/06
 -------------------------
 
