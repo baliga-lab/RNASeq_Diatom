@@ -26,7 +26,7 @@ task_logger = logging.getLogger('airflow.task')
 
 # DEFAULT VALUES IS the example files
 CONFIG_DIR = "/Users/weiju/Projects/ISB/Global_Search/examples"
-CONFIG_FILE = os.path.join(CONFIG_DIR, "redsea-001.json")
+CONFIG_FILE = os.path.join(CONFIG_DIR, "redsea-starsalmon.json")
 DEBUGGING = True
 
 with DAG(
