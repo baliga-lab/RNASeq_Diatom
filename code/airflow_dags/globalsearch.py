@@ -24,11 +24,6 @@ from globalsearch.rnaseq.run_kallisto import kallisto_index as idx_kallisto_geno
 task_logger = logging.getLogger('airflow.task')
 
 
-LOG_DIR = "/Users/weiju/tmp"
-ERROR_LOG = os.path.join(LOG_DIR, "globalsearch_errors.log")
-STATUS_LOG = os.path.join(LOG_DIR, "globalseach_status.log")
-
-
 # DEFAULT VALUES IS the example files
 CONFIG_DIR = "/Users/weiju/Projects/ISB/Global_Search/examples"
 CONFIG_FILE = os.path.join(CONFIG_DIR, "redsea-001.json")
@@ -51,6 +46,7 @@ with DAG(
         tags=['globalsearch', 'star', 'salmon'],
         params={
             'config_file': Param(type='string', default=CONFIG_FILE),
+            'debugging': Param(type='boolean', default=DEBUGGING)
         }
 ) as dag:
 
@@ -68,18 +64,10 @@ with DAG(
         else:
             return "idx_genome_kallisto"
 
-    # we can obtain the run id through {{run_id}}
-    if DEBUGGING:
-        gs_prepare = BashOperator(
-            task_id='prepare',
-            bash_command='echo "gs_prepare {{params.config_file}}"'
-        )
-    else:
-        gs_prepare = BashOperator(
-            task_id='prepare',
-            bash_command='gs_prepare {{params.config_file}}'
-        )
-
+    gs_prepare = BashOperator(
+        task_id='prepare',
+        bash_command='{% if params.debugging %}echo "gs_prepare {{params.config_file}}"{% else %}gs_prepare {{params.config_file}}{% endif %}'
+    )
 
     decide_algo = BranchPythonOperator(
         task_id="decide_algorithm",
@@ -99,7 +87,7 @@ with DAG(
         genome_dir = config['genome_dir']
         genome_fasta = config['genome_fasta']
         task_logger.info("start indexing the genome for STAR")
-        if not DEBUGGING:
+        if not kwargs['params']['debugging']:
             idx_star_genome(genome_dir, genome_fasta)
         task_logger.info("finished indexing the genome for STAR")
         return "Indexed STAR in dir: '%s' on file '%s' finished" % (genome_dir, genome_fasta)
@@ -111,7 +99,17 @@ with DAG(
     """
     @task(task_id="idx_genome_kallisto")
     def idx_genome_kallisto_task(ds=None, **kwargs):
-        # TODO
+        config_file = kwargs['params']['config_file']
+        with open(config_file) as infile:
+            config = json.load(infile)
+        genome_dir = config['genome_dir']
+        genome_fasta = config['genome_fasta']
+        organism = os.path.basename(genome_dir)
+        # make the index in the genome directory for now
+        index_path = os.path.join(genome_dir, '%s_kallistoindex' % organism)
+        task_logger.info("start indexing the genome for STAR")
+        if not kwargs['params']['debugging']:
+            idx_kallisto_genome(index_path, genome_fasta)
         return "Indexed Kallisto"
 
     idx_genome_kallisto = idx_genome_kallisto_task()
@@ -119,42 +117,42 @@ with DAG(
 
     star_salmon = BashOperator(
         task_id='starsalmon',
-        bash_command='echo "Submitting STAR/salmon jobs...done" >> %s 2>&1' % (STATUS_LOG),
+        bash_command='echo "Submitting STAR/salmon jobs...done"',
     )
 
     spladder = BashOperator(
         task_id='spladder',
-        bash_command='echo "Submitting SplAdder jobs...done" >> %s 2>&1' % (STATUS_LOG),
+        bash_command='echo "Submitting SplAdder jobs...done"',
     )
 
     orthofinder = BashOperator(
         task_id='orthofinder',
-        bash_command='echo "Submitting Orthofinder jobs...done" >> %s 2>&1' % (STATUS_LOG),
+        bash_command='echo "Submitting Orthofinder jobs...done"',
     )
 
     process_star_results = BashOperator(
         task_id='proc_star_results',
-        bash_command='echo "Processing STAR results...done" >> %s 2>&1' % (STATUS_LOG),
+        bash_command='echo "Processing STAR results...done"',
     )
 
     process_spladder_results = BashOperator(
         task_id='proc_spladder_results',
-        bash_command='echo "Processing SplAdder results...done" >> %s 2>&1' % (STATUS_LOG),
+        bash_command='echo "Processing SplAdder results...done"',
     )
 
     process_orthofinder_results = BashOperator(
         task_id='proc_orthofinder_results',
-        bash_command='echo "Processing Orthofinder results...done" >> %s 2>&1' % (STATUS_LOG),
+        bash_command='echo "Processing Orthofinder results...done"',
     )
 
 
     kallisto = BashOperator(
         task_id='kallisto',
-        bash_command='echo "Submitting Kallisto jobs...done" >> %s 2>&1' % (STATUS_LOG),
+        bash_command='echo "Submitting Kallisto jobs...done"',
     )
     process_kallisto_results = BashOperator(
         task_id='proc_kallisto_results',
-        bash_command='echo "Processing Kallisto results...done" >> %s 2>&1' % (STATUS_LOG),
+        bash_command='echo "Processing Kallisto results...done"',
     )
 
     dag.doc_md = __doc__
