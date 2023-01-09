@@ -1,13 +1,34 @@
 #!/bin/bash
 
+# Main Job submission script for RNA seq analysis
+# If it succeeds it will return exit code 0
+# Fails with exit code 1
+
 if [ "$#" -ne 1 ] ; then
 	echo "Usage: gs_submit <config-file>"
 	exit 1
 fi
 
-
 tmpfile=$(mktemp /tmp/slurm_job.XXXXXX)
 echo "Creating job file: $tmpfile"
-python3 -m globalsearch.control.gs_prepare $1 && python3 -m globalsearch.rnaseq.make_star_salmon_job $1 > $tmpfile && RES=$(sbatch --parsable $tmpfile) && echo $RES
+output=$(python3 -m globalsearch.control.gs_prepare $1)
+
+if [ $? == 0 ] ; then
+    algo=$(echo "$output" | tail -1)
+    if [ $algo == 'star_salmon' ]; then
+	echo "Running STAR/Salmon workflow"
+        python3 -m globalsearch.rnaseq.make_star_salmon_job $1 > $tmpfile && RES=$(sbatch --parsable $tmpfile) && echo $RES
+    elif [ $algo == 'kallisto' ]; then
+	echo "Running Kallisto workflow"
+        python3 -m globalsearch.rnaseq.make_kallisto_job $1 > $tmpfile && RES=$(sbatch --parsable $tmpfile) && echo $RES
+    else
+	echo "UNSUPPORTED ALGORITHM: $algo"
+	exit 1
+    fi
+else
+    echo "ERROR WHILE PREPARING"
+    echo "$output"
+    exit 1
+fi
 
 #rm -f $tmpfile

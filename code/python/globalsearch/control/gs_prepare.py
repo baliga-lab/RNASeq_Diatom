@@ -35,7 +35,7 @@ def check_star_options(star_options):
         pass
 
 
-def check_params(config):
+def check_params(config, rna_algo):
     """ensures integrity of the parameters"""
     print("checking integrity of parameters...", end="")
     if not os.path.exists(config["input_dir"]):
@@ -67,7 +67,9 @@ def check_params(config):
     try:
         check_star_options(config['star_options'])
     except ValueError as e:
-                sys.exit(str(e))
+        sys.exit(str(e))
+    except KeyError:
+        pass
 
     print("done")
 
@@ -138,15 +140,21 @@ if __name__ == '__main__':
     parser.add_argument('configfile', help="configuration file")
     args = parser.parse_args()
 
-    check_star()
-    check_salmon()
+    with open(args.configfile) as infile:
+        config = json.load(infile)
+    rna_algo = config['rnaseq_algorithm']
+
+    if rna_algo == 'star_salmon':
+        check_star()
+        check_salmon()
+    if rna_algo == 'kallisto':
+        check_kallisto()
+
     check_htseq()
     check_samtools()
     check_trim_galore()
-    check_kallisto()
 
-    with open(args.configfile) as infile:
-        config = json.load(infile)
-    check_params(config)
+    check_params(config, rna_algo)
     create_dirs(config)
+    print(rna_algo)
 

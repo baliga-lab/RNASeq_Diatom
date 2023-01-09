@@ -1,8 +1,20 @@
 #!/bin/bash
 
+# A script that checks the validity of the input parameters
+# specified in the configuration file.
+# If successful, it will return with exit code 0 and print the RNA seq
+# algorithm as its return code
+# If there was an error it returns with exit code 1 and prints the error
 if [ "$#" -ne 1 ] ; then
 	echo "Usage: gs_prepare <config-file>"
 	exit 1
 fi
 
-python3 -m globalsearch.control.gs_prepare $1
+output=$(python3 -m globalsearch.control.gs_prepare $1)
+if [ $? == 0 ]; then
+    algo=$(echo "$output" | tail -1)
+    echo "$algo"
+else
+    echo "$output"
+    exit 1
+fi
