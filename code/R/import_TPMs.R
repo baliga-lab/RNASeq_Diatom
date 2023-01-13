@@ -31,17 +31,9 @@ remove_quant_path = function(x) {
    })));
 }
 
-## Extract Salmon calculated quants
-extract_salmon_quants <- function(analysis_dir, outdir, regexp) {
-  message("\nExtract Salmon calculated quants")
-  message(paste("dir: [", analysis_dir, "]", sep=''))
-  message(paste("regexp: [", regexp, "]", sep=''))
-  salmon_files <- fs::dir_ls(analysis_dir, regexp=regexp, recurse=T)
-  #message("SALMON FILES FOUND: ")
-  #print(salmon_files)
-  #message("\n**** END SALMON FILES FOUND ****\n")
+extract_salmon_quant_tpms = function(salmon_files, analysis_dir) {
   # get the file list and pipe it into our extractor function
-  salmon_df <- salmon_files %>%
+  salmon_files %>%
     set_names(.) %>%
     map_dfr(quant_extractor, .id = "file.ID") %>%
     pivot_wider(names_from = `file.ID`, values_from=`data$TPM`) %>%
@@ -49,18 +41,31 @@ extract_salmon_quants <- function(analysis_dir, outdir, regexp) {
     rename_with(~ gsub(analysis_dir, "", .x, fixed=TRUE)) %>%
     # remove the last path part from the name
     rename_with(~ remove_quant_path(.)) %>%
-    rename(gene_id = `data$Name`)
+    rename(gene_id=`data$Name`)
+}
 
-  salmon_df_org1 <- salmon_df %>% filter(grepl(organism1, gene_id))
-  salmon_df_org2 <- salmon_df %>% filter(grepl(organism2, gene_id))
+write_out_tables <- function(merged_df, outdir, algo, typename, organism1, organism2) {
+  organisms = paste(organism1, organism2, sep='_')
+  df_org1 <- merged_df %>% filter(grepl(organism1, gene_id))
+  df_org2 <- merged_df %>% filter(grepl(organism2, gene_id))
 
   # write into  file
-  merged_file = paste(outdir, "/STAR_Salmon_", organisms, "_TPM_matrix_Merged.csv", sep='')
-  org1_file = paste(outdir, "/STAR_Salmon_", organisms, "_TPM_matrix_", organism1, ".csv", sep='')
-  org2_file = paste(outdir, "/STAR_Salmon_", organisms, "_TPM_matrix_", organism2, ".csv", sep='')
-  write_csv(salmon_df, file=merged_file)
-  write_csv(salmon_df_org1, file=org1_file)
-  write_csv(salmon_df_org2, file=org2_file)
+  merged_file = paste(outdir, "/", algo, "_", organisms, "_", typename, "_Merged.csv", sep='')
+  org1_file = paste(outdir, "/", algo, "_", organisms, "_", typename, "_", organism1, ".csv", sep='')
+  org2_file = paste(outdir, "/", algo, "_", organisms, "_", typename, "_", organism2, ".csv", sep='')
+  write_csv(merged_df, file=merged_file)
+  write_csv(df_org1, file=org1_file)
+  write_csv(df_org2, file=org2_file)
+}
+
+## Extract Salmon calculated quants
+extract_salmon_quants <- function(analysis_dir, outdir, regexp) {
+  message("\nExtract Salmon calculated quants")
+  message(paste("dir: [", analysis_dir, "]", sep=''))
+  message(paste("regexp: [", regexp, "]", sep=''))
+  salmon_files <- fs::dir_ls(analysis_dir, regexp=regexp, recurse=T)
+  salmon_tpm_df <- extract_salmon_quant_tpms(salmon_files, analysis_dir);
+  write_out_tables(salmon_tpm_df, outdir, "STAR_Salmon", 'TPM_matrix', organism1, organism2);
 }
 
 ## Function to extract TPM from each file
