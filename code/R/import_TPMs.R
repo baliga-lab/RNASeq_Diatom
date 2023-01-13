@@ -13,12 +13,18 @@ BWA_SALMON_QUANT_SF_PATH = paste("/results_bwa_Salmon_", organisms, "-reefGenomi
 BWA_SALMON_REGEXP = paste('*', BWA_SALMON_QUANT_SF_PATH, sep='')
 
 ## Function to extract TPM from each file
-quant_extractor = function(fname) {
+quant_tpm_extractor = function(fname) {
   data = read_delim(file=fname, delim="\t", show_col_types=FALSE)
-
   # create and return a data frame like this:
   return(tibble(data$Name, data$TPM))
 }
+## Function to extract NumReads from each file
+quant_numreads_extractor = function(fname) {
+  data = read_delim(file=fname, delim="\t", show_col_types=FALSE)
+  # create and return a data frame like this:
+  return(tibble(data$Name, data$NumReads))
+}
+
 
 # Remove the path components from the column names of the tibble
 # x: a vector of column names
@@ -35,8 +41,21 @@ extract_salmon_quant_tpms = function(salmon_files, analysis_dir) {
   # get the file list and pipe it into our extractor function
   salmon_files %>%
     set_names(.) %>%
-    map_dfr(quant_extractor, .id = "file.ID") %>%
+    map_dfr(quant_tpm_extractor, .id = "file.ID") %>%
     pivot_wider(names_from = `file.ID`, values_from=`data$TPM`) %>%
+    # strip the input directory part out of the column name
+    rename_with(~ gsub(analysis_dir, "", .x, fixed=TRUE)) %>%
+    # remove the last path part from the name
+    rename_with(~ remove_quant_path(.)) %>%
+    rename(gene_id=`data$Name`)
+}
+
+extract_salmon_quant_numreads = function(salmon_files, analysis_dir) {
+  # get the file list and pipe it into our extractor function
+  salmon_files %>%
+    set_names(.) %>%
+    map_dfr(quant_numreads_extractor, .id = "file.ID") %>%
+    pivot_wider(names_from = `file.ID`, values_from=`data$NumReads`) %>%
     # strip the input directory part out of the column name
     rename_with(~ gsub(analysis_dir, "", .x, fixed=TRUE)) %>%
     # remove the last path part from the name
@@ -65,7 +84,9 @@ extract_salmon_quants <- function(analysis_dir, outdir, regexp) {
   message(paste("regexp: [", regexp, "]", sep=''))
   salmon_files <- fs::dir_ls(analysis_dir, regexp=regexp, recurse=T)
   salmon_tpm_df <- extract_salmon_quant_tpms(salmon_files, analysis_dir);
+  salmon_numreads_df <- extract_salmon_quant_numreads(salmon_files, analysis_dir);
   write_out_tables(salmon_tpm_df, outdir, "STAR_Salmon", 'TPM_matrix', organism1, organism2);
+  write_out_tables(salmon_numreads_df, outdir, "STAR_Salmon", 'NumReads_matrix', organism1, organism2);
 }
 
 ## Function to extract TPM from each file
