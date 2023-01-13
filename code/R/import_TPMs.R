@@ -32,9 +32,7 @@ remove_quant_path = function(x) {
 }
 
 ## Extract Salmon calculated quants
-STAR_SALMON_REGEXP = "*/*salmon_quant/quant.sf"
-STAR_SALMON_QUANT_SF_PATH = paste("/results_STAR_Salmon/salmon_quant/quant.sf", sep="")
-extract_salmon_quants <- function(analysis_dir, outdir, regexp=STAR_SALMON_REGEXP) {
+extract_salmon_quants <- function(analysis_dir, outdir, regexp) {
   message("\nExtract Salmon calculated quants")
   message(paste("dir: [", analysis_dir, "]", sep=''))
   message(paste("regexp: [", regexp, "]", sep=''))
@@ -173,13 +171,25 @@ extract_bwasalmon_results <- function(analysis_dir, outdir) {
   write_csv(bwa_df_org2, file=BWA_DF_ORG2_FILE)
 }
 
-RNA_SEQ_ANALYSIS_DIR = "/proj/omics4tb2/wwu/Global_Search/pilot_fail_concat-output/"
-OUTDIR = '/proj/omics4tb2/wwu/Global_Search/RNASeq_TPMs'
-if (!dir.exists(OUTDIR)) {
-  dir.create(OUTDIR)
+args = commandArgs(trailingOnly=TRUE)
+if (length(args) < 2) {
+  message("usage: Rscript importTPMS.R <indir> <outdir>");
+  q(save="no", status=1);
 }
 
-extract_salmon_quants(RNA_SEQ_ANALYSIS_DIR, OUTDIR, STAR_SALMON_REGEXP)
+STAR_SALMON_REGEXP = "*/*salmon_quant/quant.sf"
+analysis_dir = normalizePath(args[1])
+# input dir path *must* end with the path slash
+if (!endsWith(analysis_dir, '/')) {
+    analysis_dir <- paste(analysis_dir, '/', sep='');
+}
+out_dir = args[2]
+
+if (!dir.exists(out_dir)) {
+  dir.create(out_dir)
+}
+
+extract_salmon_quants(analysis_dir, out_dir, STAR_SALMON_REGEXP)
 
 #select <- order(rowMeans(kallisto_df_Acerv)[2:126], decreasing=TRUE)[1:20]
 #df <- as.data.frame(colData(dds)[,c("condition","type")])
