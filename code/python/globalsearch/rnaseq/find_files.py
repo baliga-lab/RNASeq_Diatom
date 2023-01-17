@@ -37,7 +37,10 @@ def rnaseq_data_folder_list(config, filesys=os):
     else:
         # take the top level directories in the input directory
         # that match the pattern
-        result = [d for d in filesys.listdir(config['input_dir']) if re.match(pattern, d)]
+        #print("ADD TOPLEVEL FILES: %s" % config['input_dir'])
+        #result = [d for d in filesys.listdir(config['input_dir']) if re.match(pattern, d)]
+        result = [d for d in filesys.listdir(config['input_dir'])
+                if filesys.isdir(fs.path.combine(config['input_dir'], d))]
     return result
 
 

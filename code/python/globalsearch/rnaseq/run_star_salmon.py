@@ -229,7 +229,9 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
     for first_pair_file in first_pair_files:
         first_file_name_full = first_pair_file.split('/')[-1]
 
+        # Check for 2 variants for now: fastq and fq suffixes
         second_pair_file = first_pair_file.replace('_1.fq', '_2.fq')
+        second_pair_file = second_pair_file.replace('_1.fastq', '_2.fastq')
         second_file_name_full = second_pair_file.split('/')[-1]
         file_ext = first_pair_file.split('.')[-1]
 
