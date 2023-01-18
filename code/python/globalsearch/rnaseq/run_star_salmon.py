@@ -97,7 +97,7 @@ def run_star(first_pair_group, second_pair_group, results_dir, folder_name, geno
 
     cmd = ' '.join(command)
     print('STAR run command:%s' % cmd)
-    compl_proc = subprocess.run(command, check=True, capture_output=False)
+    compl_proc = subprocess.run(command, check=True, capture_output=False, cwd=results_dir)
 
 ####################### Deduplication (not in _old) ###############################
 def dedup(results_dir,folder_name):
@@ -136,15 +136,15 @@ def dedup(results_dir,folder_name):
     ## STAR based BAM duplicate removal
     # Mark duplicates with STAR
     print('STAR mark duplicates run command:%s' % star_markdup_cmd)
-    compl_proc = subprocess.run(star_markdup_command, check=True, capture_output=False)
+    compl_proc = subprocess.run(star_markdup_command, check=True, capture_output=False, cwd=results_dir)
 
     # Remove marked duplicates withh samtools
     print('Samtools  STAR Dedup Remove run command:%s' % rmsingletonsSTAR_cmd)
-    os.system(rmsingletonsSTAR_cmd)  # WW: use subprocess.run(), test shell interaction
+    compl_proc = subprocess.run(rmsingletonSTAR_command, check=True, capture_output=False, cwd=results_dir)
 
     # Remove marked duplicates withh samtools
     print('Samtools  Collate reads by read name run command:%s' % collatereadsSTAR_cmd)
-    compl_proc = subprocess.run(collatereadsSTAR_command, check=True, capture_output=False)
+    compl_proc = subprocess.run(collatereadsSTAR_command, check=True, capture_output=False, cwd=results_dir)
 
 
 ####################### Run Salmon Count ###############################
@@ -194,7 +194,7 @@ def create_genome_index(genome_dir, genome_fasta):
         print ('Genome indexes exist. Not creating!')
     else:
         print ('Creating genome indexes')
-        compl_proc = subprocess.run(index_command, check=True, capture_output=False)
+        compl_proc = subprocess.run(index_command, check=True, capture_output=False, cwd=genome_dir)
 
 
 ####################### Running the Pipeline ###############################

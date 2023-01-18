@@ -9,7 +9,7 @@ import jinja2
 from fs.osfs import OSFS  # make sure we install the fs package !!!
 
 
-def rnaseq_data_folder_list(config, filesys=os):
+def rnaseq_data_folder_list(config, filesys=OSFS('/')):
     """Function to determine the list of directories that are to be submitted to
     the cluster for RNA sequencing analysis
     """
