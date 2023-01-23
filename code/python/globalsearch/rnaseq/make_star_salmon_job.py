@@ -10,8 +10,8 @@ from globalsearch.rnaseq.find_files import rnaseq_data_folder_list
 TEMPLATE = """#!/bin/bash
 
 #SBATCH -J star_salmon_{{genome}}
-#SBATCH -o {{log_dir}}/"%j".out
-#SBATCH -e {{log_dir}}/"%j".out
+#SBATCH -o {{log_dir}}/"%A"."%a".out
+#SBATCH -e {{log_dir}}/"%A"."%a".out
 #SBATCH --array={{array_range}}
 
 {{sbatch_options}}

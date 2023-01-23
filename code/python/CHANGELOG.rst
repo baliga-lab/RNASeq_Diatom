@@ -1,6 +1,12 @@
 Changes
 =======
 
+Version 0.1.1, 2023/01/23
+-------------------------
+
+  - log file names are now specific to array and index names
+  - subprocess.run() for salmon_quant step
+
 Version 0.1.0, 2023/01/17
 -------------------------
 

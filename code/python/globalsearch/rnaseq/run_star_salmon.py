@@ -14,51 +14,6 @@ from .trim_galore import trim_galore, collect_trimmed_data, create_result_dirs
 
 DESCRIPTION = """run_STAR_SALMON.py - run STAR and Salmon"""
 
-####################### Create results directories ###############################
-
-
-####################### Reorder Fastq files By read Name ###############################
-### Remove this function
-def order_fq(first_pair_file, second_pair_file, data_folder, sample_id):
-    #print("1stpair:%s, 2ndpair:%s, folder_name:%s, sample_name:%s")%(first_pair_file,second_pair_file,folder_name,sample_name)
-    print
-    print ("\033[34m Running Order Fq \033[0m")
-    new_sample_id = sample_id.split("_")[0]
-
-    # Convert 1st file to SAM by using picard FastqToSam tool
-    cmd1 = 'picard FastqToSam F1=%s O=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_unaligned_reads_1.sam SM=%s' %(first_pair_file, new_sample_id,new_sample_id,new_sample_id)
-    print
-    print( '++++++  FastqToSam Command for 1st File:', cmd1)
-    print
-    os.system(cmd1)
-
-    # Convert 2nd file to SAM by using picard FastqToSam tool
-    cmd2 = 'picard FastqToSam F1=%s O=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_unaligned_reads_2.sam SM=%s' %(second_pair_file, new_sample_id,new_sample_id,new_sample_id)
-    print
-    print( '++++++  FastqToSam Command for 2nd File:', cmd2)
-    print
-    os.system(cmd2)
-
-# Merge Sam files
-    cmd3 = 'picard MergeSamFiles I=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_unaligned_reads_1.sam I=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_unaligned_reads_2.sam O=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_merged_reads.sam SORT_ORDER=queryname' %(new_sample_id,new_sample_id,new_sample_id,new_sample_id,new_sample_id,new_sample_id)
-    print
-    print( '++++++  MergeSamFiles Command:', cmd3)
-    print
-    os.system(cmd3)
-
-    # UnMerge Sam files to fastq files
-    cmd4 = 'picard SamToFastq I=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_merged_reads.sam FASTQ=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_reordered_1.fastq SECOND_END_FASTQ=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_reordered_2.fastq UNPAIRED_FASTQ=/proj/omics4tb2/Global_Search/Pilot_Fail_New/raw_data/%s/%s_reordered_unpaired.fastq' %(new_sample_id,new_sample_id,new_sample_id,new_sample_id,new_sample_id,new_sample_id,new_sample_id,new_sample_id)
-    print
-    print( '++++++  UnMergeSamFiles Command:', cmd4)
-    print
-    os.system(cmd4)
-
-
-####################### Trimgalore for quality and trimming ###############################
-
-
-
-
 ####################### Run STAR #####################################
 ### We need to add Read GRoup info
 ### --outSAMattrRGline ID:${i%_TF_R1_val_1.fq.gz}
@@ -160,9 +115,11 @@ def run_salmon_quant(results_dir, folder_name, genome_fasta):
     else:
         salmon_input = '%sAligned.out.bam' % (outfile_prefix)
 
-    cmd = 'salmon quant -t %s -l A -a %s -o %s/%s_salmon_quant' % (genome_fasta, salmon_input, results_dir, args.salmonPrefix)
+    command = ['salmon', 'quant', '-t', genome_fasta,
+        '-l', 'A',  '-a',  salmon_input, '-o', '%s/%s_salmon_quant' % (results_dir, args.salmonPrefix)]
+    cmd = ' '.join(command)
     print('salmon-count run command: %s' % cmd)
-    os.system(cmd)
+    compl_proc = subprocess.run(cmd, check=True, capture_output=False, cwd=results_dir)
 
 
 ####################### Run HTSEq Count ###############################
