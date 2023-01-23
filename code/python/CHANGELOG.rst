@@ -1,6 +1,11 @@
 Changes
 =======
 
+Version 0.1.2, 2023/01/23
+-------------------------
+
+  - STAR/Salmon indexing is a separate step of gs_submit
+
 Version 0.1.1, 2023/01/23
 -------------------------
 

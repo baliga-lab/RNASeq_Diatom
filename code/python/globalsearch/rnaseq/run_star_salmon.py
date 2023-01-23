@@ -268,6 +268,6 @@ if __name__ == '__main__':
     else:
         genome_fasta = glob.glob('%s/*.fasta' % (args.genomedir))[0]
 
-    create_genome_index(args.genomedir, genome_fasta)
+    #create_genome_index(args.genomedir, genome_fasta)
     data_trimmed_dir,fastqc_dir,results_dir = run_pipeline(data_folder, args.outdir, args.genomedir, genome_fasta,
         args.genome_gff, args)
