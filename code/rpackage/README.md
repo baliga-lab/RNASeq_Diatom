@@ -10,7 +10,7 @@ This is the R support package for the GlobalSearch pipeline
 
 ```
 $ library('devtools')
-$ devtools::install_github('https://github.com/baliga-lab/Global_Search.git', subdir="code/rpackage")
+$ devtools::install_github('https://github.com/baliga-lab/Global_Search.git', ref="main", subdir="code/rpackage")
 ```
 
 ### From local directory (this source repository)

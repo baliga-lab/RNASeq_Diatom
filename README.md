@@ -25,8 +25,17 @@ Starting point point for the pipeline
 
 ## Installation
 
+Python:
+
 ```
 $ pip install globalsearch
+```
+
+Within R:
+
+```
+$ library('devtools')
+$ devtools::install_github('https://github.com/baliga-lab/Global_Search.git', ref="main", subdir="code/rpackage")
 ```
 
 ## Configuration format description
