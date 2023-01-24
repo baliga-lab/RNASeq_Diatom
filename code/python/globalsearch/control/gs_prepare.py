@@ -6,6 +6,8 @@ Script to check parameters and prepare for submission
 import argparse
 import json
 import os, sys, glob, subprocess
+from rpy2.robjects.packages import importr, PackageNotInstalledError
+import rpy2
 
 
 DESCRIPTION = """gs_prepare.py - prepare data for workflow submission"""
@@ -18,6 +20,12 @@ OUTSAM_ATTRS_EXT2 = { "rB", "vR" }
 OUTSAM_ATTRS_SPECIAL = { "None", "Standard", "All" }
 OUTSAM_ATTRS_MULTI = OUTSAM_ATTRS_STD | OUTSAM_ATTRS_EXT | OUTSAM_ATTRS_EXT2
 OUTSAM_ATTRS_SINGLE = OUTSAM_ATTRS_STD | OUTSAM_ATTRS_EXT | OUTSAM_ATTRS_EXT2 | OUTSAM_ATTRS_SPECIAL
+
+def silent_rpy2_print(o):
+    pass
+
+rpy2.rinterface_lib.callbacks.consolewrite_print = silent_rpy2_print
+rpy2.rinterface_lib.callbacks.consolewrite_warnerror = silent_rpy2_print
 
 
 def check_star_options(star_options):
@@ -134,6 +142,24 @@ def check_trim_galore():
     __check_command("trim_galore", num_info_components=2, multiline=True, info_line=3)
 
 
+def check_rlibrary_installed(libname):
+    try:
+        lib = importr(libname)
+        return True
+    except PackageNotInstalledError:
+        return False
+
+
+def check_rlibraries_installed():
+    print("checking for installed R libraries...", end="")
+    not_installed = []
+    for rlib in ['GlobalSearch']:
+        if not check_rlibrary_installed(rlib):
+            not_installed.append(rlib)
+    print("done", flush=True)
+
+    return not_installed
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=DESCRIPTION)
@@ -153,8 +179,12 @@ if __name__ == '__main__':
     check_htseq()
     check_samtools()
     check_trim_galore()
+    not_installed = check_rlibraries_installed()
+    if len(not_installed) > 0:
+        for libname in not_installed:
+            print("ERROR: Please install the R library '%s'" % libname)
+        sys.exit()
 
     check_params(config, rna_algo)
     create_dirs(config)
     print(rna_algo)
-
