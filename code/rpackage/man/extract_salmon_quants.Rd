@@ -2,7 +2,7 @@
 % Please edit documentation in R/import_TPMs.R
 \name{extract_salmon_quants}
 \alias{extract_salmon_quants}
-\title{Extract TPMS and number of reads from salmon generted quant.sf files}
+\title{Extract TPMS and number of reads from salmon generated quant.sf files}
 \usage{
 extract_salmon_quants(
   organism1,

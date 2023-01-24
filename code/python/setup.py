@@ -29,7 +29,7 @@ CLASSIFIERS = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Software Development :: Libraries :: Python Modules"
     ]
-INSTALL_REQUIRES = ['jinja2', 'fs', 'xmlrunner']
+INSTALL_REQUIRES = ['jinja2', 'fs', 'xmlrunner', 'rpy2']
 
 
 if __name__ == '__main__':
