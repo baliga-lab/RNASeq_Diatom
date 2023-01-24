@@ -1,6 +1,12 @@
 Changes
 =======
 
+Version 0.1.3, 2023/01/24
+-------------------------
+
+  - Refactoring: renaming of Python modules
+  - Refactoring: indexing code moved to index module
+
 Version 0.1.2, 2023/01/23
 -------------------------
 

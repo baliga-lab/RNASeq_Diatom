@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+"""
+Generate a SLURM job file to call the STAR indexer
+It accepts a pipeline configuration file and
+fills out the template with the appropriate parameters
+"""
+
 import jinja2
 import os
 import argparse
@@ -18,7 +24,7 @@ echo "TASK ID: $SLURM_JOB_ID"
 
 {{sbatch_extras}}
 
-python3 -m globalsearch.rnaseq.index_star_salmon {{genome_fasta_option}} {{genome_dir}}
+python3 -m globalsearch.rnaseq.index_star {{genome_fasta_option}} {{genome_dir}}
 """
 
 DESCRIPTION = """make_star_salmon_job.py - Create STAR Salmon job file for Slurm"""

@@ -133,26 +133,6 @@ def run_htseq(htseq_dir, results_dir, folder_name, genome_gff):
     print('htseq-count run command:%s' %cmd)
     os.system(cmd)
 
-####################### Create STAR index ###############################
-### This should be specific for the organism
-### Use the equation file maybe another script to create references
-def create_genome_index(genome_dir, genome_fasta):
-    index_command = ['STAR', '--runMode', 'genomeGenerate',
-                     '--runThreadN', '32',
-                     '--genomeDir', genome_dir,
-                     '--genomeFastaFiles', genome_fasta,
-                     '--genomeChrBinNbits', '16',
-                     '--genomeSAindexNbases', '12']
-    index_cmd = ' '.join(index_command)
-    print(index_cmd)
-
-    print ("\033[34m %s Indexing genome... \033[0m")
-    if os.path.exists('%s/SAindex' % (genome_dir)):
-        print ('Genome indexes exist. Not creating!')
-    else:
-        print ('Creating genome indexes')
-        compl_proc = subprocess.run(index_command, check=True, capture_output=False, cwd=genome_dir)
-
 
 ####################### Running the Pipeline ###############################
 
@@ -268,6 +248,5 @@ if __name__ == '__main__':
     else:
         genome_fasta = glob.glob('%s/*.fasta' % (args.genomedir))[0]
 
-    #create_genome_index(args.genomedir, genome_fasta)
     data_trimmed_dir,fastqc_dir,results_dir = run_pipeline(data_folder, args.outdir, args.genomedir, genome_fasta,
         args.genome_gff, args)
