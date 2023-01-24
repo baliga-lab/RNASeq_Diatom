@@ -2,15 +2,15 @@ library(tidyverse)
 library(fs)
 
 # Input parameters
-organism1 = 'Past'
-organism2 = 'Smic'
-organisms = paste(organism1, organism2, sep='_')
-cat("ORGANISMS: ", organisms, "\n", sep='')
+#organism1 = 'Past'
+#organism2 = 'Smic'
+#organisms = paste(organism1, organism2, sep='_')
+#cat("ORGANISMS: ", organisms, "\n", sep='')
 
 # derived constants
-KALLISTO_ABUNDANCE_PATH = paste("/results_Kallisto_", organisms, "-reefGenomics/abundance.tsv", sep="")
-BWA_SALMON_QUANT_SF_PATH = paste("/results_bwa_Salmon_", organisms, "-reefGenomics/salmon_quant/quant.sf", sep="")
-BWA_SALMON_REGEXP = paste('*', BWA_SALMON_QUANT_SF_PATH, sep='')
+#KALLISTO_ABUNDANCE_PATH = paste("/results_Kallisto_", organisms, "-reefGenomics/abundance.tsv", sep="")
+#BWA_SALMON_QUANT_SF_PATH = paste("/results_bwa_Salmon_", organisms, "-reefGenomics/salmon_quant/quant.sf", sep="")
+#BWA_SALMON_REGEXP = paste('*', BWA_SALMON_QUANT_SF_PATH, sep='')
 
 ## Function to extract TPM from each file
 quant_tpm_extractor = function(fname) {
@@ -77,8 +77,24 @@ write_out_tables <- function(merged_df, outdir, algo, typename, organism1, organ
   write_csv(df_org2, file=org2_file)
 }
 
-## Extract Salmon calculated quants
-extract_salmon_quants <- function(analysis_dir, outdir, regexp) {
+# default regular expression for extract_salmon_quants()
+STAR_SALMON_REGEXP = "*/*salmon_quant/quant.sf"
+
+#' Extract TPMS and number of reads from salmon generted quant.sf files
+#'
+#' `extract_salmon_quants()` extracts all the salmon_quant.sf files
+#' in the given analysis directory and writes 2 output files, 1 for
+#' the TPMs and one for the number of reads
+#'
+#' @param organism1 the first organism of the coral
+#' @param organism2 the second organism of the coral
+#' @param analysis_dir the analysis directory
+#' @param outdir the output directory
+#' @param regexp the regular expression to match files. Default
+#'     value: "*/*salmon_quant/quant.sf"
+#' @export
+extract_salmon_quants <- function(organism1, organism2, analysis_dir, outdir,
+		                  regexp=STAR_SALMON_REGEXP) {
   message("\nExtract Salmon calculated quants")
   message(paste("dir: [", analysis_dir, "]", sep=''))
   message(paste("regexp: [", regexp, "]", sep=''))
@@ -98,7 +114,8 @@ rsem_quant_extractor = function(fname) {
 }
 
 ## Extract Bowtie2/RSEM quants
-extract_bowtie2rsem_quants <- function(analysis_dir, outdir) {
+extract_bowtie2rsem_quants <- function(organism1, organism2, analysis_dir, outdir) {
+  organisms = paste(organism1, organism2, sep='_')
   message("Extract Bowtie2/RSEM calculated quants")
   rsem_files <- fs::dir_ls(analysis_dir, glob="*.genes.results", recurse=T)
 
@@ -137,8 +154,9 @@ kallisto_quant_extractor = function(fname) {
 }
 
 ## Extract Kallisto results
-extract_kallisto_quants <- function(analysis_dir, outdir) {
+extract_kallisto_quants <- function(organism1, organism2, analysis_dir, outdir) {
   message("Extract Kallisto calculated quants")
+  organisms = paste(organism1, organism2, sep='_')
   kallisto_files <- fs::dir_ls(analysis_dir, glob="*/abundance.tsv", recurse=T)
 
   # get the file list and pipe it into our extractor function
@@ -171,8 +189,9 @@ bwa_quant_extractor = function(fname) {
 }
 
 ## Extract bwa/Salmon results
-extract_bwasalmon_results <- function(analysis_dir, outdir) {
+extract_bwasalmon_results <- function(organism1, organism2, analysis_dir, outdir) {
   message("Extract bwa/Salmon results")
+  organisms = paste(organism1, organism2, sep='_')
   bwa_files <- fs::dir_ls(analysis_dir, regexp=BWA_SALMON_REGEXP, recurse=T)
 
   # get the file list and pipe it into our extractor function
@@ -197,25 +216,28 @@ extract_bwasalmon_results <- function(analysis_dir, outdir) {
   write_csv(bwa_df_org2, file=BWA_DF_ORG2_FILE)
 }
 
-args = commandArgs(trailingOnly=TRUE)
-if (length(args) < 2) {
-  message("usage: Rscript importTPMS.R <indir> <outdir>");
-  q(save="no", status=1);
-}
 
-STAR_SALMON_REGEXP = "*/*salmon_quant/quant.sf"
-analysis_dir = normalizePath(args[1])
+##
+## This is where the command line tool starts
+##
+#args = commandArgs(trailingOnly=TRUE)
+#if (length(args) < 2) {
+#  message("usage: Rscript importTPMS.R <indir> <outdir>");
+#  q(save="no", status=1);
+#}
+
+#analysis_dir = normalizePath(args[1])
 # input dir path *must* end with the path slash
-if (!endsWith(analysis_dir, '/')) {
-    analysis_dir <- paste(analysis_dir, '/', sep='');
-}
-out_dir = args[2]
+#if (!endsWith(analysis_dir, '/')) {
+#    analysis_dir <- paste(analysis_dir, '/', sep='');
+#}
+#out_dir = args[2]
 
-if (!dir.exists(out_dir)) {
-  dir.create(out_dir)
-}
+#if (!dir.exists(out_dir)) {
+#  dir.create(out_dir)
+#}
 
-extract_salmon_quants(analysis_dir, out_dir, STAR_SALMON_REGEXP)
+#extract_salmon_quants(organism1, organism2, analysis_dir, out_dir, STAR_SALMON_REGEXP)
 
 #select <- order(rowMeans(kallisto_df_Acerv)[2:126], decreasing=TRUE)[1:20]
 #df <- as.data.frame(colData(dds)[,c("condition","type")])

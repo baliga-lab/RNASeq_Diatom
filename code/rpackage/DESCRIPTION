@@ -1,0 +1,18 @@
+Package: GlobalSearch
+Title: R support functions for the Global Search pipeline
+Version: 0.0.0.1
+Authors@R: c(
+	person("Serdar", "Turkarslan", , "sturkarslan@isbscience.org", role=c("aut")),
+	person("Wei-ju", "Wu", , "wwu@isbscience.org", role=c("aut", "cre")))
+Maintainer@R: person("Wei-ju", "Wu", , "wwu@isbscience.org", role=c("aut", "cre"))
+Description: Support functions for the Global Search pipeline.
+    The Python pipeline functions depend on this library through rpy2.
+License: `use_lgpl3_license()`
+Depends:
+    R (>= 3.6.3)
+Imports:
+    tidyverse,
+    fs
+Encoding: UTF-8
+Roxygen: list(markdown=TRUE)
+RoxygenNote: 7.0.2

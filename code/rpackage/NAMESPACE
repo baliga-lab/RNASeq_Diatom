@@ -1,0 +1,6 @@
+# Usable functions
+export(extract_salmon_quants)
+
+importFrom("stats", "filter")
+importFrom("utils", "read.delim")
+
