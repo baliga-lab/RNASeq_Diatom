@@ -27,6 +27,13 @@ if __name__ == '__main__':
     postrun_outdir = os.path.join(output_dir, "Post_Run_Results")
     genome_dir = config['genome_dir']
     org1, org2 = os.path.basename(genome_dir).split('_')
-    print("postrun_outdir: '%s', org1: %s, org2: %s" % (postrun_outdir, org1, org2))
+    print('\033[33mExtracting salmon quant files...\033[0m')
     global_search = importr("GlobalSearch")
     global_search.extract_salmon_quants(org1, org2, output_dir, postrun_outdir)
+    # now run MultiQC
+    print('\033[33mRunning MultiQC...\033[0m')
+    multiqc_outdir = os.path.join(output_dir, 'MultiQC')
+    if not os.path.exists(multiqc_outdir):
+        os.makedirs(multiqc_outdir)
+    command = ['multiqc', '--outdir', multiqc_outdir, output_dir]
+    compl_proc = subprocess.run(command, check=True, capture_output=False, cwd=output_dir)
