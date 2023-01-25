@@ -6,6 +6,7 @@ Version 0.1.3, 2023/01/24
 
   - Refactoring: renaming of Python modules
   - Refactoring: indexing code moved to index module
+  - Post-run step adds TPM/Count extraction and MultiQC
 
 Version 0.1.2, 2023/01/23
 -------------------------

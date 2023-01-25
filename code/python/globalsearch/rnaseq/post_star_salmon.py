@@ -32,7 +32,7 @@ if __name__ == '__main__':
     global_search.extract_salmon_quants(org1, org2, output_dir, postrun_outdir)
     # now run MultiQC
     print('\033[33mRunning MultiQC...\033[0m')
-    multiqc_outdir = os.path.join(output_dir, 'MultiQC')
+    multiqc_outdir = os.path.join(postrun_outdir, 'MultiQC')
     if not os.path.exists(multiqc_outdir):
         os.makedirs(multiqc_outdir)
     command = ['multiqc', '--outdir', multiqc_outdir, output_dir]
