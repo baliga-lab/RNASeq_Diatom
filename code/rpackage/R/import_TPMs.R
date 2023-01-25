@@ -119,6 +119,10 @@ extract_salmon_quants <- function(organism1, organism2, analysis_dir, outdir,
   }
   # Step 2. Create the output directory if it does not exist
   dir.create(outdir, showWarnings=FALSE)
+  tpm_dir <- paste(outdir, 'TPMs', sep='/')
+  count_dir <- paste(outdir, 'Counts', sep='/')
+  dir.create(tpm_dir, showWarnings=FALSE)
+  dir.create(count_dir, showWarnings=FALSE)
 
   message("\nExtract Salmon calculated quants")
   message(paste("dir: [", analysis_dir, "]", sep=''))
@@ -126,8 +130,8 @@ extract_salmon_quants <- function(organism1, organism2, analysis_dir, outdir,
   salmon_files <- fs::dir_ls(analysis_dir, regexp=regexp, recurse=T)
   salmon_tpm_df <- extract_salmon_quant_tpms(salmon_files, analysis_dir);
   salmon_numreads_df <- extract_salmon_quant_numreads(salmon_files, analysis_dir);
-  write_out_tables(salmon_tpm_df, outdir, "STAR_Salmon", 'TPM_matrix', organism1, organism2);
-  write_out_tables(salmon_numreads_df, outdir, "STAR_Salmon", 'NumReads_matrix', organism1, organism2);
+  write_out_tables(salmon_tpm_df, tpm_dir, "STAR_Salmon", 'TPM_matrix', organism1, organism2);
+  write_out_tables(salmon_numreads_df, count_dir, "STAR_Salmon", 'NumReads_matrix', organism1, organism2);
 }
 
 ## Function to extract TPM from each file
@@ -240,29 +244,6 @@ extract_bwasalmon_results <- function(organism1, organism2, analysis_dir, outdir
   readr::write_csv(bwa_df_org1, file=BWA_DF_ORG1_FILE)
   readr::write_csv(bwa_df_org2, file=BWA_DF_ORG2_FILE)
 }
-
-
-##
-## This is where the command line tool starts
-##
-#args = commandArgs(trailingOnly=TRUE)
-#if (length(args) < 2) {
-#  message("usage: Rscript importTPMS.R <indir> <outdir>");
-#  q(save="no", status=1);
-#}
-
-#analysis_dir = normalizePath(args[1])
-# input dir path *must* end with the path slash
-#if (!endsWith(analysis_dir, '/')) {
-#    analysis_dir <- paste(analysis_dir, '/', sep='');
-#}
-#out_dir = args[2]
-
-#if (!dir.exists(out_dir)) {
-#  dir.create(out_dir)
-#}
-
-#extract_salmon_quants(organism1, organism2, analysis_dir, out_dir, STAR_SALMON_REGEXP)
 
 #select <- order(rowMeans(kallisto_df_Acerv)[2:126], decreasing=TRUE)[1:20]
 #df <- as.data.frame(colData(dds)[,c("condition","type")])
