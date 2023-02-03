@@ -19,6 +19,7 @@
         "outSAMattributes": ["All"]
     },
     "sbatch_options": {
+        "array_max_tasks": 10,
         "star_salmon": {
             "options": [
                 "--mem=8G"

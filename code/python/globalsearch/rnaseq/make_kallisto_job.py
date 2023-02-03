@@ -57,5 +57,16 @@ if __name__ == '__main__':
 
     data_folders = rnaseq_data_folder_list(config)
     config["data_folders"] = ' '.join(data_folders)
-    config["array_range"] = "0-%d" % (len(data_folders) - 1)
+
+    # Array specification
+    try:
+        array_max_tasks = config['sbatch_options']['array_max_tasks']
+    except:
+        array_max_tasks = 0
+    if array_max_tasks > 0:
+        array_max_task_spec = "%%%d" % array_max_tasks
+    else:
+        array_max_task_spec = ""
+
+    config["array_range"] = "0-%d%s" % (len(data_folders) - 1, array_max_task_spec)
     print(templ.render(config))

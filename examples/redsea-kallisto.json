@@ -10,6 +10,7 @@
     "include_file": "",
     "rnaseq_algorithm": "kallisto",
     "sbatch_options": {
+        "array_max_tasks": 10,
         "kallisto": {
             "options": [
                 "--mem=8G"
