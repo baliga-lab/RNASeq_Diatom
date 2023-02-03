@@ -45,7 +45,8 @@ def run_star(first_pair_group, second_pair_group, results_dir, folder_name, geno
     command += [ "--readFilesIn", first_pair_group,
                  second_pair_group,
                  "--outFileNamePrefix", outfile_prefix]
-    if args.outSAMattributes != "Standard":
+    if args.outSAMattributes != "Standard" and len(args.outSAMattributes) > 0:
+        print(args.outSAMattributes)
         out_sam_attrs = args.outSAMattributes.split()
         command.append('--outSAMattributes')
         command += out_sam_attrs
@@ -118,8 +119,7 @@ def run_salmon_quant(results_dir, folder_name, genome_fasta):
     command = ['salmon', 'quant', '-t', genome_fasta,
         '-l', 'A',  '-a',  salmon_input, '-o', '%s/%s_salmon_quant' % (results_dir, args.salmonPrefix)]
     cmd = ' '.join(command)
-    print('salmon-count run command: %s' % cmd)
-    compl_proc = subprocess.run(cmd, check=True, capture_output=False, cwd=results_dir)
+    compl_proc = subprocess.run(cmd, check=True, capture_output=False, cwd=results_dir, shell=True)
 
 
 ####################### Run HTSEq Count ###############################
