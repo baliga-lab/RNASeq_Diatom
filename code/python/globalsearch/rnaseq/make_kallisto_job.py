@@ -14,7 +14,7 @@ TEMPLATE = """#!/bin/bash
 #SBATCH -e {{log_dir}}/"%j".out
 #SBATCH --array={{array_range}}
 
-{{sbatch_options}}
+{{sbatch_options_comments}}
 
 echo "ARRAY TASK ID: $SLURM_ARRAY_TASK_ID"
 data_folders=({{data_folders}})
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     genome = os.path.basename(os.path.normpath(config['genome_dir']))
     config['genome'] = genome
     config['sbatch_extras'] = make_sbatch_extras(config)
-    config['sbatch_options'] = make_sbatch_options(config)
+    config['sbatch_options_comments'] = make_sbatch_options(config)
 
     data_folders = rnaseq_data_folder_list(config)
     config["data_folders"] = ' '.join(data_folders)
