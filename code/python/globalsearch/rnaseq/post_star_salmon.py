@@ -23,8 +23,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
     with open(args.configfile) as infile:
         config = json.load(infile)
+
+    # Determine post run directory. If not specified, make it sub directory of
+    # output directory
     output_dir = config['output_dir']
-    postrun_outdir = os.path.join(output_dir, "Post_Run_Results")
+    try:
+        postrun_outdir = config['postrun_output_dir']
+    except:
+        postrun_outdir = os.path.join(output_dir, "Post_Run_Results")
+
     genome_dir = config['genome_dir']
     org1, org2 = os.path.basename(genome_dir).split('_')
     print('\033[33mExtracting salmon quant files...\033[0m')

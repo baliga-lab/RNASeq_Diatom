@@ -1,6 +1,13 @@
 Changes
 =======
 
+Version 0.1.4, 2023/01/24
+-------------------------
+
+  - SLURM Array throttling added
+  - user can specify post run output directory
+  - fixed outSAMattributes option
+
 Version 0.1.3, 2023/01/24
 -------------------------
 
