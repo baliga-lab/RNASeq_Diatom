@@ -1,6 +1,11 @@
 Changes
 =======
 
+Version 0.1.5, 2023/02/09
+-------------------------
+
+  - outsamoptions in gs_prepare fixed
+
 Version 0.1.4, 2023/01/24
 -------------------------
 
