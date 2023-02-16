@@ -14,21 +14,25 @@ from globalsearch.control.gs_prepare import check_star_options
 class CheckParamsTest(unittest.TestCase):
     def test_check_star_options_out_samattrs_special_success(self):
         """check the special attributes of outSAMattributes"""
-        check_star_options({'outSAMattributes': 'Standard'})
-        check_star_options({'outSAMattributes': 'None'})
-        check_star_options({'outSAMattributes': 'All'})
+        check_star_options({'outSAMattributes': ['Standard']})
+        check_star_options({'outSAMattributes': ['None']})
+        check_star_options({'outSAMattributes': ['All']})
 
     def test_check_star_options_out_samattrs_single_fail(self):
         """check error on non existing value"""
-        self.assertRaises(ValueError, check_star_options, {'outSAMattributes': 'notexists'})
+        self.assertRaises(ValueError, check_star_options, {'outSAMattributes': ['notexists']})
 
     def test_check_star_options_out_samattrs_multi_fail(self):
         """check error when special attribute is used in multi context"""
-        self.assertRaises(ValueError, check_star_options, {'outSAMattributes': 'All None'})
+        self.assertRaises(ValueError, check_star_options, {'outSAMattributes': ['All', 'None']})
 
     def test_check_star_options_out_samattrs_multi_success(self):
         """check successful multi context"""
-        check_star_options({'outSAMattributes': 'NH HI'})
+        check_star_options({'outSAMattributes': ['NH', 'HI']})
+
+    def test_check_star_options_out_samattrs_wrong_type(self):
+        """check wrong type for outSAMattributes"""
+        self.assertRaises(TypeError, check_star_options, {'outSAMattributes': 'NH HI'})
 
 if __name__ == '__main__':
     SUITE = []

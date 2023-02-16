@@ -22,12 +22,12 @@ DESCRIPTION = """run_STAR_SALMON.py - run STAR and Salmon"""
 def run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir):
     print('\033[33mRunning STAR! \033[0m')
     outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
-    star_options = ["--runThreadN", "32",
+    star_options = ["--runThreadN", "32",  # TODO: move to config
                     "--outFilterType", "Normal",
                     "--outSAMstrandField", "intronMotif",
                     "--outFilterIntronMotifs", "RemoveNoncanonical",
                     "--outSAMtype", "BAM", "Unsorted",
-                    "--limitBAMsortRAM", "5784458574",
+                    "--limitBAMsortRAM", "5784458574",  # TODO: move to config
                     "--readFilesCommand", "zcat",
                     "--outReadsUnmapped", "Fastx",
                     "--outFilterMismatchNmax", str(args.outFilterMismatchNmax),
@@ -119,7 +119,8 @@ def run_salmon_quant(results_dir, folder_name, genome_fasta):
     command = ['salmon', 'quant', '-t', genome_fasta,
         '-l', 'A',  '-a',  salmon_input, '-o', '%s/%s_salmon_quant' % (results_dir, args.salmonPrefix)]
     cmd = ' '.join(command)
-    compl_proc = subprocess.run(cmd, check=True, capture_output=False, cwd=results_dir, shell=True)
+    print("Salmon quant command: '%s'" % cmd)
+    compl_proc = subprocess.run(command, check=True, capture_output=False, cwd=results_dir, shell=True)
 
 
 ####################### Run HTSEq Count ###############################

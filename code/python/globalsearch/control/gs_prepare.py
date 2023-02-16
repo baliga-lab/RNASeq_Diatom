@@ -31,6 +31,8 @@ rpy2.rinterface_lib.callbacks.consolewrite_warnerror = silent_rpy2_print
 def check_star_options(star_options):
     try:
         outsam_attrs = star_options['outSAMattributes']
+        if not isinstance(outsam_attrs, list):
+            raise TypeError("STAR options: outSAMattributes expected type: 'list' but was '%s'" % type(outsam_attrs))
         if len(outsam_attrs) == 1:
             if not outsam_attrs[0] in OUTSAM_ATTRS_SINGLE:
                 raise ValueError("STAR options (single): outSAMattributes: '%s'" % [outsam_attrs[0]])

@@ -21,11 +21,11 @@ DESCRIPTION = """index_star_salmon.py - Create genome index using STAR"""
 ### Use the equation file maybe another script to create references
 def create_genome_index(genome_dir, genome_fasta):
     index_command = ['STAR', '--runMode', 'genomeGenerate',
-                     '--runThreadN', '32',
+                     '--runThreadN', '32',  # TODO: to config file
                      '--genomeDir', genome_dir,
                      '--genomeFastaFiles', genome_fasta,
-                     '--genomeChrBinNbits', '16',
-                     '--genomeSAindexNbases', '12']
+                     '--genomeChrBinNbits', '16',  # TODO: to config file
+                     '--genomeSAindexNbases', '12']  # TODO: to config file
     index_cmd = ' '.join(index_command)
     print(index_cmd)
 
