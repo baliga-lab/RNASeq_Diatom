@@ -22,7 +22,7 @@ DESCRIPTION = """run_STAR_SALMON.py - run STAR and Salmon"""
 def run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir):
     print('\033[33mRunning STAR! \033[0m')
     outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
-    star_options = ["--runThreadN", "32",  # TODO: move to config
+    star_options = ["--runThreadN", str(args.runThreadN),
                     "--outFilterType", "Normal",
                     "--outSAMstrandField", "intronMotif",
                     "--outFilterIntronMotifs", "RemoveNoncanonical",
@@ -236,6 +236,7 @@ if __name__ == '__main__':
     parser.add_argument('--outFilterScoreMinOverLread', nargs='?', const=0.66, type=float)
     parser.add_argument('--outFilterMatchNmin', nargs='?', const=0, type=int)
     parser.add_argument('--outSAMattributes', nargs='?', type=str, default="Standard")
+    parser.add_argument('--runThreadN', type=int, default=32)
 
     #### Add argument for running star in two pass mode
     ### Kate to contribute relevant code

@@ -19,13 +19,13 @@ DESCRIPTION = """index_star_salmon.py - Create genome index using STAR"""
 ####################### Create STAR index ###############################
 ### This should be specific for the organism
 ### Use the equation file maybe another script to create references
-def create_genome_index(genome_dir, genome_fasta):
+def create_genome_index(genome_dir, genome_fasta, args):
     index_command = ['STAR', '--runMode', 'genomeGenerate',
-                     '--runThreadN', '32',  # TODO: to config file
+                     '--runThreadN', args.runThreadN,
                      '--genomeDir', genome_dir,
                      '--genomeFastaFiles', genome_fasta,
-                     '--genomeChrBinNbits', '16',  # TODO: to config file
-                     '--genomeSAindexNbases', '12']  # TODO: to config file
+                     '--genomeChrBinNbits', str(args.genomeChrBinNbits),
+                     '--genomeSAindexNbases', str(args.genomeSAindexNbases)]
     index_cmd = ' '.join(index_command)
     print(index_cmd)
 
@@ -42,9 +42,12 @@ if __name__ == '__main__':
                                      description=DESCRIPTION)
     parser.add_argument('genomedir', help='genome directory')
     parser.add_argument('--genome_fasta', help='genome FASTA file')
+    parser.add_argument('--runThreadN', type=int, default=32)
+    parser.add_argument('--genomeChrBinNbits', type=int, default=16)
+    parser.add_argument('--genomeSAindexNbases', type=int, default=12)
     args = parser.parse_args()
     if args.genome_fasta is not None and os.path.exists(args.genome_fasta):
         genome_fasta = args.genome_fasta
     else:
         genome_fasta = glob.glob('%s/*.fasta' % (args.genomedir))[0]
-    create_genome_index(args.genomedir, genome_fasta)
+    create_genome_index(args.genomedir, genome_fasta, args)

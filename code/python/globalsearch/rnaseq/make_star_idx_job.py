@@ -24,7 +24,7 @@ echo "TASK ID: $SLURM_JOB_ID"
 
 {{sbatch_extras}}
 
-python3 -m globalsearch.rnaseq.index_star {{genome_fasta_option}} {{genome_dir}}
+python3 -m globalsearch.rnaseq.index_star {{star_index_cmd_options}} {{genome_fasta_option}} {{genome_dir}}
 """
 
 DESCRIPTION = """make_star_salmon_job.py - Create STAR Salmon job file for Slurm"""
@@ -62,6 +62,27 @@ if __name__ == '__main__':
         if os.path.exists(genome_fasta):
             config['genome_fasta_option'] = '--genome_fasta %s' % genome_fasta
     except:
+        pass
+
+    # see if optional star_index_options exists
+    try:
+        config['star_index_cmd_options'] = ''
+        star_index_options = config['star_index_options']
+        options = []
+        try:
+            options.append("--runThreadN %d" % star_index_options['runThreadN'])
+        except KeyError:
+            pass
+        try:
+            options.append("--genomeChrBinNbits %d" % star_index_options['genomeChrBinNbits'])
+        except KeyError:
+            pass
+        try:
+            options.append("--genomeSAindexNbases %d" % star_index_options['genomeSAindexNbases'])
+        except KeyError:
+            pass
+        config['star_index_cmd_options'] = ' '.join(options)
+    except KeyError:
         pass
 
     print(templ.render(config))

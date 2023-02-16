@@ -12,12 +12,18 @@
     "deduplicate_bam_files": false,
     "rnaseq_algorithm": "star_salmon",
     "star_options": {
+        "runThreadN": 32,
         "outFilterMismatchNmax": 10,
         "outFilterMismatchNoverLmax": 0.3,
         "outFilterScoreMinOverLread": 0.66,
         "outFilterMatchNmin": 0,
         "twopassMode": false,
         "outSAMattributes": ["All"]
+    },
+    "star_index_options": {
+        "runThreadN": 32,
+        "genomeChrBinNbits": 16,
+        "genomeSAindexNbases": 12
     },
     "sbatch_options": {
         "array_max_tasks": 10,
