@@ -11,6 +11,7 @@ wasting time as this is a very costly step.
 """
 import argparse
 import os
+import subprocess
 
 
 DESCRIPTION = """index_star_salmon.py - Create genome index using STAR"""
@@ -21,7 +22,7 @@ DESCRIPTION = """index_star_salmon.py - Create genome index using STAR"""
 ### Use the equation file maybe another script to create references
 def create_genome_index(genome_dir, genome_fasta, args):
     index_command = ['STAR', '--runMode', 'genomeGenerate',
-                     '--runThreadN', args.runThreadN,
+                     '--runThreadN', str(args.runThreadN),
                      '--genomeDir', genome_dir,
                      '--genomeFastaFiles', genome_fasta,
                      '--genomeChrBinNbits', str(args.genomeChrBinNbits),
