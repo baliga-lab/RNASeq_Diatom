@@ -47,7 +47,7 @@ def check_star_options(star_options):
 
 def check_params(config, rna_algo):
     """ensures integrity of the parameters"""
-    print("checking integrity of parameters...", end="")
+    print("checking integrity of parameters...", end="", flush=True)
     if not os.path.exists(config["input_dir"]):
         sys.exit("Input directory '%s' does not exist" % config["input_dir"])
 
@@ -55,18 +55,13 @@ def check_params(config, rna_algo):
         if len(config['genome_fasta'].strip()) > 0 and not os.path.exists(config["genome_fasta"]):
             sys.exit("ERROR: Specified Genome FASTA '%s' does not exist" % config["genome_fasta"])
     except:
-        print("WARNING: genome_gff not specified (htseq will be skipped)")
+        print("WARNING: genome_gff not specified (htseq will be skipped)", flush=True)
 
     if not os.path.exists(config["genome_dir"]):
         sys.exit("Genome directory '%s' does not exist" % config["genome_dir"])
         genome_fasta = glob.glob('%s/*.fasta' % (args.genomedir))
         if len(genome_fasta) == 0:
             sys.exit("Genome directory '%s' does not contain any FASTA files" % config["genome_dir"])
-    try:
-        if not os.path.exists(config["genome_gff"]):
-            print("WARNING: Genome GFF '%s' does not exist (htseq will be skipped)" % config["genome_gff"])
-    except:
-        print("WARNING: genome_gff not specified (htseq will be skipped)")
 
     if len(config["includes"]) > 0:
         # check the existence of the included directories
@@ -81,15 +76,15 @@ def check_params(config, rna_algo):
     except KeyError:
         pass
 
-    print("done")
+    print("done.", flush=True)
 
 
 def create_dirs(config):
     if not os.path.exists(config["output_dir"]):
-        print("creating output directory '%s'" % config["output_dir"])
+        print("creating output directory '%s'" % config["output_dir"], flush=True)
         os.makedirs(config["output_dir"])
     if not os.path.exists(config["log_dir"]):
-        print("creating log directory '%s'" % config["log_dir"])
+        print("creating log directory '%s'" % config["log_dir"], flush=True)
         os.makedirs(config["log_dir"])
 
 
@@ -100,7 +95,7 @@ def __check_command(command, num_info_components=1, version_index=-1,
     restrict version numbers
     """
     try:
-        print("checking for %s... " % command, end="")
+        print("checking for %s... " % command, end="", flush=True)
         compl_proc = subprocess.run([command, version_switch], check=True, capture_output=True)
         if multiline:
             info_string = compl_proc.stdout.decode('utf-8').split('\n')[info_line].strip()
@@ -109,15 +104,15 @@ def __check_command(command, num_info_components=1, version_index=-1,
         comps = info_string.split()
         version = comps[version_index]
 
-        print("(found version '%s') ..." % version, end="")
+        print("(found version '%s') ..." % version, end="", flush=True)
         if check_version is not None and check_version != version:
             sys.exit("Unsupported version %s. Currently, only %s %s is supported" % (command, check_version))
-        print("done")
+        print("done.", flush=True)
     except FileNotFoundError:
         if fail_if_not_exists:
             sys.exit("Can not find %s (not installed or not in PATH)" % command)
         else:
-            print("WARN: %s does not exist, but is optional" % command)
+            print("WARN: %s does not exist, but is optional" % command, flush=True)
 
 
 def check_salmon():
@@ -153,7 +148,7 @@ def check_rlibrary_installed(libname):
 
 
 def check_rlibraries_installed():
-    print("checking for installed R libraries...", end="")
+    print("checking for installed R libraries...", end="", flush=True)
     not_installed = []
     for rlib in ['GlobalSearch']:
         if not check_rlibrary_installed(rlib):

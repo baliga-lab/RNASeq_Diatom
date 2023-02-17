@@ -28,14 +28,15 @@ def create_genome_index(genome_dir, genome_fasta, args):
                      '--genomeChrBinNbits', str(args.genomeChrBinNbits),
                      '--genomeSAindexNbases', str(args.genomeSAindexNbases)]
     index_cmd = ' '.join(index_command)
-    print(index_cmd)
+    print("RUNNING STAR in index MODE: '%s'" % index_cmd, flush=True)
 
-    print ("\033[34m %s Indexing genome... \033[0m")
+    print ("\033[34m %s Indexing genome... \033[0m", flush=True)
     if os.path.exists('%s/SAindex' % (genome_dir)):
-        print ('Genome indexes exist. Not creating!')
+        print ('Genome indexes exist. Not creating!', flush=True)
     else:
-        print ('Creating genome indexes')
+        print('Creating genome indexes', flush=True)
         compl_proc = subprocess.run(index_command, check=True, capture_output=False, cwd=genome_dir)
+        print('finished indexing with STAR', flush=True)
 
 
 if __name__ == '__main__':
