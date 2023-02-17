@@ -19,15 +19,15 @@ DESCRIPTION = """run_STAR_SALMON.py - run STAR and Salmon"""
 ### --outSAMattrRGline ID:${i%_TF_R1_val_1.fq.gz}
 ### https://github.com/BarshisLab/danslabnotebook/blob/main/CBASSAS_GenotypeScreening.md
 
-def run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir):
+def run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir, args):
     print('\033[33mRunning STAR! \033[0m')
-    outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
+    outfile_prefix = '%s/%s_%s_' % (results_dir, folder_name, args.starPrefix)
     star_options = ["--runThreadN", str(args.runThreadN),
                     "--outFilterType", "Normal",
                     "--outSAMstrandField", "intronMotif",
                     "--outFilterIntronMotifs", "RemoveNoncanonical",
                     "--outSAMtype", "BAM", "Unsorted",
-                    "--limitBAMsortRAM", "5784458574",  # TODO: move to config
+                    "--limitBAMsortRAM", str(args.limitBAMsortRAM),
                     "--readFilesCommand", "zcat",
                     "--outReadsUnmapped", "Fastx",
                     "--outFilterMismatchNmax", str(args.outFilterMismatchNmax),
@@ -50,6 +50,10 @@ def run_star(first_pair_group, second_pair_group, results_dir, folder_name, geno
         out_sam_attrs = args.outSAMattributes.split()
         command.append('--outSAMattributes')
         command += out_sam_attrs
+
+    # Handling for GFF files
+    if not args.genome_gff is None and os.path.exists(args.genome_gff):
+        pass
 
     cmd = ' '.join(command)
     print('STAR run command:%s' % cmd)
@@ -137,7 +141,7 @@ def run_htseq(htseq_dir, results_dir, folder_name, genome_gff):
 
 ####################### Running the Pipeline ###############################
 
-def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_gff, args):
+def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, args):
     folder_count = 1
 
     # Loop through each data folder
@@ -197,7 +201,7 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
         first_pair_group, second_pair_group, pair_files = collect_trimmed_data(data_trimmed_dir, file_ext)
 
         # Run STAR
-        run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir)
+        run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir, args)
 
         # Run Deduplication
         if args.dedup:
@@ -209,8 +213,8 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, genome_g
         run_salmon_quant(results_dir, folder_name, genome_fasta)
 
         # Run HTSeq count
-        if not genome_gff is None and os.path.exists(genome_gff):
-            run_htseq(htseq_dir, results_dir, folder_name, genome_gff)
+        #if not genome_gff is None and os.path.exists(genome_gff):
+        #    run_htseq(htseq_dir, results_dir, folder_name, genome_gff)
 
         folder_count += 1
 
@@ -237,9 +241,8 @@ if __name__ == '__main__':
     parser.add_argument('--outFilterMatchNmin', nargs='?', const=0, type=int)
     parser.add_argument('--outSAMattributes', nargs='?', type=str, default="Standard")
     parser.add_argument('--runThreadN', type=int, default=32)
+    parser.add_argument('--limitBAMsortRAM', type=int, default=5784458574)
 
-    #### Add argument for running star in two pass mode
-    ### Kate to contribute relevant code
     args = parser.parse_args()
 
     now = datetime.datetime.now()
@@ -250,5 +253,4 @@ if __name__ == '__main__':
     else:
         genome_fasta = glob.glob('%s/*.fasta' % (args.genomedir))[0]
 
-    data_trimmed_dir,fastqc_dir,results_dir = run_pipeline(data_folder, args.outdir, args.genomedir, genome_fasta,
-        args.genome_gff, args)
+    data_trimmed_dir,fastqc_dir,results_dir = run_pipeline(data_folder, args.outdir, args.genomedir, genome_fasta, args)
