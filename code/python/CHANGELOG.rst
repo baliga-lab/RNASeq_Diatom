@@ -1,6 +1,13 @@
 Changes
 =======
 
+Version 0.1.6, 2023/02/09
+-------------------------
+
+  - configurable STAR indexing
+  - more options for STAR
+  - GFF files can be used in STAR
+
 Version 0.1.5, 2023/02/09
 -------------------------
 

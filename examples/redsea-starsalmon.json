@@ -13,6 +13,7 @@
     "rnaseq_algorithm": "star_salmon",
     "star_options": {
         "runThreadN": 32,
+        "limitBAMsortRAM": 5784458574,
         "outFilterMismatchNmax": 10,
         "outFilterMismatchNoverLmax": 0.3,
         "outFilterScoreMinOverLread": 0.66,
