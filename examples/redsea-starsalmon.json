@@ -19,7 +19,9 @@
         "outFilterScoreMinOverLread": 0.66,
         "outFilterMatchNmin": 0,
         "twopassMode": false,
-        "outSAMattributes": ["All"]
+        "outSAMattributes": ["All"],
+        "sjdbGTFtagExonParentTranscript": "Parent",
+        "sjdbOverhang": 100
     },
     "star_index_options": {
         "runThreadN": 32,

@@ -81,6 +81,16 @@ if __name__ == '__main__':
         genome_gff = config['genome_gff']
         if os.path.exists(genome_gff):
             config['genome_gff_option'] = '--genome_gff %s' % genome_gff
+        try:
+            sjdb_gtf_tag_exon_parent_transcript = config['star_options']['sjdbGTFtagExonParentTranscript']
+            config['genome_gff_option'] += (' --sjdbGTFtagExonParentTranscript %s' % sjdb_gtf_tag_exon_parent_transcript)
+        except KeyError:
+            pass  # ignore if doesn't exist
+        try:
+            sjdb_overhang = config['star_options']['sjdbOverhang']
+            config['genome_gff_option'] += (' --sjdbOverhang %s' % sjdb_overhang)
+        except KeyError:
+            pass  # ignore if doesn't exist
     except:
         pass
 

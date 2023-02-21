@@ -20,7 +20,7 @@ DESCRIPTION = """run_STAR_SALMON.py - run STAR and Salmon"""
 ### https://github.com/BarshisLab/danslabnotebook/blob/main/CBASSAS_GenotypeScreening.md
 
 def run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir, args):
-    print('\033[33mRunning STAR! \033[0m')
+    print('\033[33mRunning STAR! \033[0m', flush=True)
     outfile_prefix = '%s/%s_%s_' % (results_dir, folder_name, args.starPrefix)
     star_options = ["--runThreadN", str(args.runThreadN),
                     "--outFilterType", "Normal",
@@ -46,22 +46,27 @@ def run_star(first_pair_group, second_pair_group, results_dir, folder_name, geno
                  second_pair_group,
                  "--outFileNamePrefix", outfile_prefix]
     if args.outSAMattributes != "Standard" and len(args.outSAMattributes) > 0:
-        print(args.outSAMattributes)
+        print(args.outSAMattributes, flush=True)
         out_sam_attrs = args.outSAMattributes.split()
         command.append('--outSAMattributes')
         command += out_sam_attrs
 
     # Handling for GFF files
     if not args.genome_gff is None and os.path.exists(args.genome_gff):
-        pass
+        gff_args = [
+            '--sjdbGTFfile', args.genome_gff,
+            '--sjdbGTFtagExonParentTranscript', args.sjdbGTFtagExonParentTranscript,
+            '--sjdbOverhang', str(args.sjdbOverhang)
+        ]
+        command += gff_args
 
     cmd = ' '.join(command)
-    print('STAR run command:%s' % cmd)
+    print('STAR run command:%s' % cmd, flush=True)
     compl_proc = subprocess.run(command, check=True, capture_output=False, cwd=results_dir)
 
 ####################### Deduplication (not in _old) ###############################
 def dedup(results_dir,folder_name):
-    print('\033[33mRunning Deduplication! \033[0m')
+    print('\033[33mRunning Deduplication! \033[0m', flush=True)
     outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
 
     aligned_bam = '%sAligned.out.bam' % (outfile_prefix)
@@ -95,15 +100,15 @@ def dedup(results_dir,folder_name):
 
     ## STAR based BAM duplicate removal
     # Mark duplicates with STAR
-    print('STAR mark duplicates run command:%s' % star_markdup_cmd)
+    print('STAR mark duplicates run command:%s' % star_markdup_cmd, flush=True)
     compl_proc = subprocess.run(star_markdup_command, check=True, capture_output=False, cwd=results_dir)
 
     # Remove marked duplicates withh samtools
-    print('Samtools  STAR Dedup Remove run command:%s' % rmsingletonsSTAR_cmd)
+    print('Samtools  STAR Dedup Remove run command:%s' % rmsingletonsSTAR_cmd, flush=True)
     compl_proc = subprocess.run(rmsingletonSTAR_command, check=True, capture_output=False, cwd=results_dir)
 
     # Remove marked duplicates withh samtools
-    print('Samtools  Collate reads by read name run command:%s' % collatereadsSTAR_cmd)
+    print('Samtools  Collate reads by read name run command:%s' % collatereadsSTAR_cmd, flush=True)
     compl_proc = subprocess.run(collatereadsSTAR_command, check=True, capture_output=False, cwd=results_dir)
 
 
@@ -111,9 +116,8 @@ def dedup(results_dir,folder_name):
 # WW: Check the names of the input files they will be different from _out
 def run_salmon_quant(results_dir, folder_name, genome_fasta):
     outfile_prefix = '%s/%s_%s_' %(results_dir, folder_name, args.starPrefix)
-    print(outfile_prefix)
-    print
-    print('\033[33mRunning salmon-quant! \033[0m')
+    print(outfile_prefix, flush=True)
+    print('\033[33mRunning salmon-quant! \033[0m', flush=True)
     # check if we are performing deduplication
     if args.dedup:
         salmon_input = '%sNoSingletonCollated.out.bam' % (outfile_prefix)
@@ -123,19 +127,18 @@ def run_salmon_quant(results_dir, folder_name, genome_fasta):
     command = ['salmon', 'quant', '-t', genome_fasta,
         '-l', 'A',  '-a',  salmon_input, '-o', '%s/%s_salmon_quant' % (results_dir, args.salmonPrefix)]
     cmd = ' '.join(command)
-    print("Salmon quant command: '%s'" % cmd)
+    print("Salmon quant command: '%s'" % cmd, flush=True)
     compl_proc = subprocess.run(command, check=True, capture_output=False, cwd=results_dir, shell=True)
 
 
 ####################### Run HTSEq Count ###############################
 #### We can remove this since we are using salmon quant
 def run_htseq(htseq_dir, results_dir, folder_name, genome_gff):
-    print
-    print('\033[33mRunning htseq-count! \033[0m')
+    print('\033[33mRunning htseq-count! \033[0m', flush=True)
     htseq_input = '%s/%s_star_Aligned.sortedByCoord.out.bam' %(results_dir, folder_name)
     cmd = 'htseq-count -s "reverse" -t "exon" -i "Parent" -r pos --max-reads-in-buffer 60000000 -f bam %s %s > %s/%s_htseqcounts.txt' %(htseq_input,
                                                                                                                                         genome_gff,htseq_dir,folder_name)
-    print('htseq-count run command:%s' %cmd)
+    print('htseq-count run command: %s' % cmd, flush=True)
     os.system(cmd)
 
 
@@ -146,9 +149,7 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, args):
 
     # Loop through each data folder
     folder_name = data_folder.split('/')[-1]
-    print
-    print
-    print('\033[33mProcessing Folder: %s\033[0m' % (folder_name))
+    print('\033[33mProcessing Folder: %s\033[0m' % folder_name, flush=True)
 
     # Get the list of first file names in paired end sequences
     ## We need to make sure we capture fastq data files
@@ -164,7 +165,7 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, args):
     # Run create directories function to create directory structure
     create_result_dirs(data_trimmed_dir, fastqc_dir, results_dir, htseq_dir)
 
-    print("FIRST_PAIR_FILES: ", first_pair_files)
+    print("FIRST_PAIR_FILES: ", first_pair_files, flush=True)
 
     # Loop through each file and create filenames
     file_count = 1
@@ -177,19 +178,19 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, args):
         second_file_name_full = second_pair_file.split('/')[-1]
         file_ext = first_pair_file.split('.')[-1]
 
-        print ('\033[32m Processing File: %s of %s (%s)\033[0m' %(file_count, len(first_pair_files), first_file_name_full ))
+        print ('\033[32m Processing File: %s of %s (%s)\033[0m' % (file_count, len(first_pair_files), first_file_name_full ), flush=True)
 
         first_file_name = re.split('.fq|.fq.gz',first_file_name_full)[0]
         second_file_name = re.split('.fq|.fq.gz',second_file_name_full)[0]
-        print('first_file_name:%s, second_file_name:%s' %(first_file_name,second_file_name))
+        print('first_file_name:%s, second_file_name:%s' % (first_file_name,second_file_name), flush=True)
 
         # Collect Sample attributes
         exp_name = folder_name
-        print("exp_name: %s" %(exp_name))
+        print("exp_name: %s" % exp_name, flush=True)
         lane = first_file_name.split("_")[-1]
-        print("Lane: %s" %(lane))
+        print("Lane: %s" % lane, flush=True)
         sample_id = re.split('.fq|.fq.gz', first_file_name)[0]
-        print("sample_id: %s" %(sample_id))
+        print("sample_id: %s" % sample_id, flush=True)
 
         #order_fq(first_pair_file, second_pair_file, data_folder, sample_id)
 
@@ -205,8 +206,7 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, args):
 
         # Run Deduplication
         if args.dedup:
-            print
-            print('\033[33mRunning Deduplication: \033[0m')
+            print('\033[33mRunning Deduplication: \033[0m', flush=True)
             dedup(results_dir,folder_name)
 
         # Run Salmon Quant
@@ -242,6 +242,8 @@ if __name__ == '__main__':
     parser.add_argument('--outSAMattributes', nargs='?', type=str, default="Standard")
     parser.add_argument('--runThreadN', type=int, default=32)
     parser.add_argument('--limitBAMsortRAM', type=int, default=5784458574)
+    parser.add_argument('--sjdbGTFtagExonParentTranscript', default="Parent")
+    parser.add_argument('--sjdbOverhang', type=int, default=100)
 
     args = parser.parse_args()
 
