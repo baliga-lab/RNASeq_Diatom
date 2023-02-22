@@ -7,7 +7,7 @@ Coral Reef Global Search project.
 
 ## Current pipeine tools
 
-```gs_submit.sh <config-file>```
+```gs_submit <config-file>```
 
 Starting point point for the pipeline
 
@@ -47,19 +47,26 @@ Configuration files are in JSON format of the following form
   "input_dir": <input directory>,
   "genome_dir": <genome file directory>,
   "output_dir": <output directory>,
+  "postrun_output_dir": "<post-run output directory>",
   "log_dir": <log directory>,
   "genome_gff": <GFF file>,
   "genome_fasta": <FASTA file path>,
-  "fastq_patterns": ["*_{{pairnum}}.fq.*", "*_{{pairnum}}.fastq.*"],
+  "fastq_patterns": ["*_{{readnum}}.fq.*", "*_{{readnum}}.fastq.*"],
   "includes": [<directory name],
   "include_file": <path to file containing included directories>,
   "deduplicate_bam_files": false,
+  "rnaseq_algorithm": "star_salmon",
   "star_options": {
      "outFilterMismatchNmax": 10,
      "outFilterMismatchNoverLmax": 0.3,
      "outFilterScoreMinOverLread": 0.66,
      "outFilterMatchNmin": 0,
      "twopassMode": false
+  },
+  "star_index_options": {
+     "runThreadN": 32,
+     "genomeChrBinNbits": 16,
+     "genomeSAindexNbases": 12
   },
   "sbatch_options": {
      <pipeline_step_name>: {
