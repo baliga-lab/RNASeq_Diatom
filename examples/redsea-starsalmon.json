@@ -6,7 +6,7 @@
     "log_dir": "/proj/omics4tb2/wwu/slurm_logs2",
     "genome_fasta": "/proj/omics4tb2/wwu/GlobalSearch.old/reference_genomes/past_smic/Past_Smic_merged_CDS_suffixed.fasta",
     "genome_gff": "",
-    "fastq_patterns": ["*_{{pairnum}}.fq*", "*_{{pairnum}}.fastq*"],
+    "fastq_patterns": ["*_{{readnum}}.fq*", "*_{{readnum}}.fastq*"],
     "includes": ["R1"],
     "include_file": "",
     "deduplicate_bam_files": false,
@@ -21,7 +21,7 @@
         "twopassMode": false,
         "outSAMattributes": ["All"],
         "sjdbGTFtagExonParentTranscript": "Parent",
-        "sjdbOverhang": 100
+        "limitSjdbInsertNsj": 1602710
     },
     "star_index_options": {
         "runThreadN": 32,

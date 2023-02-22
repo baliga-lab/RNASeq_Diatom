@@ -65,15 +65,15 @@ class FindFilesTest(unittest.TestCase):
 
     def test_find_fastq_files(self):
         self.__make_input_folder(2)
-        result = find_files.find_fastq_files("/inputdata/R1", ["*_{{pairnum}}.fq.*"], filesys=self.mem_fs)
-        self.assertEqual(result, ['/inputdata/R1/R1_1.fq.gz'])
+        result = find_files.find_fastq_files("/inputdata/R1", ["*_{{readnum}}.fq.*"], filesys=self.mem_fs)
+        self.assertEqual(result, [('/inputdata/R1/R1_1.fq.gz', '/inputdata/R1/R1_2.fq.gz')])
 
     def test_find_fastq_files_multi_pattern(self):
         self.__make_input_folder(2)
         result = find_files.find_fastq_files("/inputdata/R1",
-                                             ["*_{{pairnum}}.fq.*", "*_{{pairnum}}.fastq.*"],
+                                             ["*_{{readnum}}.fq.*", "*_{{readnum}}.fastq.*"],
                                              filesys=self.mem_fs)
-        self.assertEqual(result, ['/inputdata/R1/R1_1.fq.gz'])
+        self.assertEqual(result, [('/inputdata/R1/R1_1.fq.gz', '/inputdata/R1/R1_2.fq.gz')])
 
 
 if __name__ == '__main__':

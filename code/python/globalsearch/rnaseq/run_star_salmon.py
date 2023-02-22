@@ -34,17 +34,14 @@ def run_star(first_pair_group, second_pair_group, results_dir, folder_name, geno
                     "--outFilterMismatchNoverLmax", str(args.outFilterMismatchNoverLmax),
                     "--outFilterScoreMinOverLread", str(args.outFilterScoreMinOverLread),
                     "--outFilterMatchNmin", str(args.outFilterMatchNmin)]
+
+    genome_load = "LoadAndKeep"  # This is the default, for efficiency
     if args.twopassMode:
         star_options.extend(["--twopassMode", "Basic"])
-        star_options.extend(["--genomeLoad", "NoSharedMemory"])
-    else:
-        star_options.extend(["--genomeLoad", "LoadAndKeep"])
+        genome_load = "NoSharedMemory"  # two-pass has to run without shared memory
 
     command = ["STAR", "--genomeDir", genome_dir]
     command += star_options
-    command += [ "--readFilesIn", first_pair_group,
-                 second_pair_group,
-                 "--outFileNamePrefix", outfile_prefix]
     if args.outSAMattributes != "Standard" and len(args.outSAMattributes) > 0:
         print(args.outSAMattributes, flush=True)
         out_sam_attrs = args.outSAMattributes.split()
@@ -53,12 +50,20 @@ def run_star(first_pair_group, second_pair_group, results_dir, folder_name, geno
 
     # Handling for GFF files
     if not args.genome_gff is None and os.path.exists(args.genome_gff):
+        genome_load = "NoSharedMemory"  # can't use GFF with a shared genome memory
         gff_args = [
             '--sjdbGTFfile', args.genome_gff,
             '--sjdbGTFtagExonParentTranscript', args.sjdbGTFtagExonParentTranscript,
-            '--sjdbOverhang', str(args.sjdbOverhang)
+            '--limitSjdbInsertNsj', str(args.limitSjdbInsertNsj)
         ]
+        if args.sjdbOverhang is not None:
+            gff_args += ['--sjdbOverhang', str(args.sjdbOverhang)]
         command += gff_args
+
+    command += [ "--readFilesIn", first_pair_group,
+                 second_pair_group,
+                 "--outFileNamePrefix", outfile_prefix]
+    command += ["--genomeLoad", genome_load]
 
     cmd = ' '.join(command)
     print('STAR run command:%s' % cmd, flush=True)
@@ -153,7 +158,7 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, args):
 
     # Get the list of first file names in paired end sequences
     ## We need to make sure we capture fastq data files
-    first_pair_files = find_fastq_files(data_folder, args.fastq_patterns.split(','))
+    pair_files = find_fastq_files(data_folder, args.fastq_patterns.split(','))
 
     # Program specific results directories
     data_trimmed_dir = "%s/%s/trimmed" % (results_folder,folder_name)
@@ -165,37 +170,28 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, args):
     # Run create directories function to create directory structure
     create_result_dirs(data_trimmed_dir, fastqc_dir, results_dir, htseq_dir)
 
-    print("FIRST_PAIR_FILES: ", first_pair_files, flush=True)
+    print("PAIR_FILES: ", pair_files, flush=True)
 
     # Loop through each file and create filenames
     file_count = 1
-    for first_pair_file in first_pair_files:
+    for pair_file in pair_files:
+        first_pair_file, second_pair_file = pair_file
         first_file_name_full = first_pair_file.split('/')[-1]
-
-        # Check for 2 variants for now: fastq and fq suffixes
-        second_pair_file = first_pair_file.replace('_1.fq', '_2.fq')
-        second_pair_file = second_pair_file.replace('_1.fastq', '_2.fastq')
         second_file_name_full = second_pair_file.split('/')[-1]
         file_ext = first_pair_file.split('.')[-1]
 
-        print ('\033[32m Processing File: %s of %s (%s)\033[0m' % (file_count, len(first_pair_files), first_file_name_full ), flush=True)
+        print ('\033[32m Processing File: %s of %s (%s)\033[0m' % (file_count, len(pair_files), first_file_name_full ), flush=True)
 
         first_file_name = re.split('.fq|.fq.gz',first_file_name_full)[0]
         second_file_name = re.split('.fq|.fq.gz',second_file_name_full)[0]
         print('first_file_name:%s, second_file_name:%s' % (first_file_name,second_file_name), flush=True)
 
         # Collect Sample attributes
-        exp_name = folder_name
-        print("exp_name: %s" % exp_name, flush=True)
-        lane = first_file_name.split("_")[-1]
-        print("Lane: %s" % lane, flush=True)
         sample_id = re.split('.fq|.fq.gz', first_file_name)[0]
         print("sample_id: %s" % sample_id, flush=True)
 
-        #order_fq(first_pair_file, second_pair_file, data_folder, sample_id)
-
         # Run TrimGalore
-        trim_galore(first_pair_file,second_pair_file,folder_name,sample_id,file_ext,data_trimmed_dir,fastqc_dir)
+        #trim_galore(first_pair_file,second_pair_file,folder_name,sample_id,file_ext,data_trimmed_dir,fastqc_dir)
         file_count = file_count + 1
 
         # Collect Trimmed data for input into STAR
@@ -243,8 +239,8 @@ if __name__ == '__main__':
     parser.add_argument('--runThreadN', type=int, default=32)
     parser.add_argument('--limitBAMsortRAM', type=int, default=5784458574)
     parser.add_argument('--sjdbGTFtagExonParentTranscript', default="Parent")
-    parser.add_argument('--sjdbOverhang', type=int, default=100)
-
+    parser.add_argument('--sjdbOverhang', type=int, default=None)
+    parser.add_argument('--limitSjdbInsertNsj', type=int, default=1602710)
     args = parser.parse_args()
 
     now = datetime.datetime.now()

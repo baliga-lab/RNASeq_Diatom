@@ -88,7 +88,12 @@ if __name__ == '__main__':
             pass  # ignore if doesn't exist
         try:
             sjdb_overhang = config['star_options']['sjdbOverhang']
-            config['genome_gff_option'] += (' --sjdbOverhang %s' % sjdb_overhang)
+            config['genome_gff_option'] += (' --sjdbOverhang %s' % str(sjdb_overhang))
+        except KeyError:
+            pass  # ignore if doesn't exist
+        try:
+            limit_sjdb_insert_nsj = config['star_options']['limitSjdbInsertNsj']
+            config['genome_gff_option'] += (' --limitSjdbInsertNsj %s' % str(limit_sjdb_insert_nsj))
         except KeyError:
             pass  # ignore if doesn't exist
     except:
