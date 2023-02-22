@@ -133,7 +133,8 @@ def run_salmon_quant(results_dir, folder_name, genome_fasta):
         '-l', 'A',  '-a',  salmon_input, '-o', '%s/%s_salmon_quant' % (results_dir, args.salmonPrefix)]
     cmd = ' '.join(command)
     print("Salmon quant command: '%s'" % cmd, flush=True)
-    compl_proc = subprocess.run(command, check=True, capture_output=False, cwd=results_dir, shell=True)
+    # run as a joined string
+    compl_proc = subprocess.run(cmd, check=True, capture_output=False, cwd=results_dir, shell=True)
 
 
 ####################### Run HTSEq Count ###############################
