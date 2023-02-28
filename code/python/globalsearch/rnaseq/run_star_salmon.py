@@ -192,28 +192,23 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, args):
         print("sample_id: %s" % sample_id, flush=True)
 
         # Run TrimGalore
-        #trim_galore(first_pair_file,second_pair_file,folder_name,sample_id,file_ext,data_trimmed_dir,fastqc_dir)
-        file_count = file_count + 1
+        trim_galore(first_pair_file,second_pair_file,folder_name,sample_id,file_ext,data_trimmed_dir,fastqc_dir)
+        file_count += 1
 
-        # Collect Trimmed data for input into STAR
-        first_pair_group, second_pair_group, pair_files = collect_trimmed_data(data_trimmed_dir, file_ext)
+    # Collect Trimmed data for input into STAR
+    first_pair_group, second_pair_group, pair_files = collect_trimmed_data(data_trimmed_dir, file_ext)
 
-        # Run STAR
-        run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir, args)
+    # Run STAR
+    run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir, args)
 
-        # Run Deduplication
-        if args.dedup:
-            print('\033[33mRunning Deduplication: \033[0m', flush=True)
-            dedup(results_dir,folder_name)
+    # Run Deduplication
+    if args.dedup:
+        print('\033[33mRunning Deduplication: \033[0m', flush=True)
+        dedup(results_dir,folder_name)
 
-        # Run Salmon Quant
-        run_salmon_quant(results_dir, folder_name, genome_fasta)
-
-        # Run HTSeq count
-        #if not genome_gff is None and os.path.exists(genome_gff):
-        #    run_htseq(htseq_dir, results_dir, folder_name, genome_gff)
-
-        folder_count += 1
+    # Run Salmon Quant
+    run_salmon_quant(results_dir, folder_name, genome_fasta)
+    folder_count += 1
 
     return data_trimmed_dir, fastqc_dir, results_dir
 
