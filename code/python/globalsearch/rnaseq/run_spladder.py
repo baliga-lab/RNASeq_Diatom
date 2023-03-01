@@ -183,7 +183,7 @@ def SplAdder_step7_parsing_statistic(contrs, parseRscript):
 ####################### Check Error Report  #####################################
 def Check_Error_Report():
     fileopen = open('ErrorReport.txt', 'r')
-    fileread = fileopen.read()
+    fileread = fileopen.read().replace('FileExistsError', '')
     fileopen.close()
     errOut = open('ErrorReport.txt','a')
     errorKeyWord = ['Execution halted', 'Error', 'error']
@@ -345,23 +345,13 @@ if __name__ == '__main__':
     all_contrasts = args.allContrasts
     contrast_dir = args.contrastDir
     sampleType = args.sampleType
-
-    now = datetime.datetime.now()
-    timeprint = now.strftime("%Y-%m-%d %H:%M")
     
-    if sampleType == 'host':
-        spladder_work_dir = work_dir + '/host_spladder_jobs'
-        spladder_out_dir = work_dir + '/host_spladder_jobs' + '/array_spladder_out'
-        parsed_event_dir = work_dir + '/host_sym_parsed_event_files'
-    elif sampleType == 'sym':
-        spladder_work_dir = work_dir + '/sym_spladder_jobs'
-        spladder_out_dir = work_dir + '/sym_spladder_jobs' + '/array_spladder_out'
+    spladder_work_dir = work_dir + '/' + sampleType + '_spladder_jobs'
+    spladder_out_dir = work_dir + '/' + sampleType + '_spladder_jobs' + '/array_spladder_out'
+    if sampleType == 'host' or sampleType == 'sym':
         parsed_event_dir = work_dir + '/host_sym_parsed_event_files'
     else:
-        spladder_work_dir = work_dir + '/' + sampleType + '_spladder_jobs'
-        spladder_out_dir = work_dir + '/' + sampleType + '_spladder_jobs' + '/array_spladder_out'
         parsed_event_dir = work_dir + '/' + sampleType + '_parsed_event_files'
-
 
     errOut = open('ErrorReport.txt','w')
     starttime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
@@ -373,8 +363,10 @@ if __name__ == '__main__':
     errOut.write('\nEnd: ' + endtime + '\n\n')
     errOut.close()
     
+    # check errors
     cleanUp = Check_Error_Report()
     
+    # clean up
     errOut = open('ErrorReport.txt','a')
     if cleanUp:
         Clean_Up(spladder_out_dir)
