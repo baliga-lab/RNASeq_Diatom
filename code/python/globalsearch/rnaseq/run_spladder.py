@@ -2,10 +2,10 @@
 
 #############################################################
 ##### RNASeq Analysis Pipeline - SplAdder               #####
-##### Last update: 2022/12/19 by Yaqiao Li              #####
+##### Last update: 2023/03/01 by Yaqiao Li              #####
 ##### Institute for Systems Biology                     #####
 #############################################################
-import glob, sys, os, string, datetime, re, errno
+import glob, sys, os, string, datetime, re, errno, time
 import argparse
 from multiprocessing import Pool, cpu_count, Manager
 from subprocess import *
@@ -39,7 +39,8 @@ def SplAdder_step1_single_graphs(input_bam, genome_annotation, spladder_out_dir)
     cmd = ' '.join(command)
     print('SplAdder_Step1_single_graphs_run_command:\n%s' % cmd)
     outOut = open('stdout.out','a')
-    errOut = open('stderr.out','a')
+    errOut = open('ErrorReport.txt','a')
+    errOut.write('\nSplAdder_Step1_single_graphs_run_command:\n%s\n' % cmd)
     spladderStep1Proc = Popen(cmd, shell=True, stdout=outOut, stderr=errOut)
     stdoutput = spladderStep1Proc.communicate()[0]
     outOut.close()
@@ -57,7 +58,14 @@ def SplAdder_step2_merged_graphs(genome_annotation, spladder_out_dir, input_bam_
                 '-v']
     cmd = ' '.join(command)
     print('SplAdder_Step2_merging_splice_graphs_run_command:\n%s' % cmd)
-    os.system(cmd)
+    outOut = open('stdout.out','a')
+    errOut = open('ErrorReport.txt','a')
+    errOut.write('\nSplAdder_Step2_merging_splice_graphs_run_command:\n%s\n' % cmd)
+    spladderStep2Proc = Popen(cmd, shell=True, stdout=outOut, stderr=errOut)
+    stdoutput = spladderStep2Proc.communicate()[0]
+    outOut.close()
+    errOut.close()
+    #os.system(cmd)
     #compl_proc = subprocess.run(command, check=True, capture_output=False)
 
 ####################### SplAdder Step3 Quantification #############################
@@ -75,7 +83,8 @@ def SplAdder_step3_quantification(input_bam, genome_annotation, spladder_out_dir
     cmd = ' '.join(command)
     print('SplAdder_Step3_splice_graphs_run_command:\n%s' % cmd)
     outOut = open('stdout.out','a')
-    errOut = open('stderr.out','a')
+    errOut = open('ErrorReport.txt','a')
+    errOut.write('\nSplAdder_Step3_splice_graphs_run_command:\n%s\n' % cmd)
     spladderStep3Proc = Popen(cmd, shell=True, stdout=outOut, stderr=errOut)
     stdoutput = spladderStep3Proc.communicate()[0]
     outOut.close()
@@ -95,7 +104,14 @@ def SplAdder_step4_aggregate_quantification(genome_annotation, spladder_out_dir,
                 '-v']
     cmd = ' '.join(command)
     print('SplAdder_Step4_aggregate_quantification_run_command:\n%s' % cmd)
-    os.system(cmd)
+    outOut = open('stdout.out','a')
+    errOut = open('ErrorReport.txt','a')
+    errOut.write('\nSplAdder_Step4_aggregate_quantification_run_command:\n%s\n' % cmd)
+    spladderStep4Proc = Popen(cmd, shell=True, stdout=outOut, stderr=errOut)
+    stdoutput = spladderStep4Proc.communicate()[0]
+    outOut.close()
+    errOut.close()
+    #os.system(cmd)
 
 ####################### SplAdder Step5 Call Events ###############################
 def SplAdder_step5_call_events(genome_annotation, spladder_out_dir, input_bam_list):
@@ -107,7 +123,14 @@ def SplAdder_step5_call_events(genome_annotation, spladder_out_dir, input_bam_li
                 '-v']
     cmd = ' '.join(command)
     print('SplAdder_Step5_call_events_run_command:\n%s' % cmd)
-    os.system(cmd)
+    outOut = open('stdout.out','a')
+    errOut = open('ErrorReport.txt','a')
+    errOut.write('\nSplAdder_Step5_call_events_run_command:\n%s\n' % cmd)
+    spladderStep5Proc = Popen(cmd, shell=True, stdout=outOut, stderr=errOut)
+    stdoutput = spladderStep5Proc.communicate()[0]
+    outOut.close()
+    errOut.close()
+    #os.system(cmd)
 
 ####################### SplAdder Step6 Contrast Tests ############################
 def SplAdder_step6_contrast_test(contrs, spladder_out_dir, contrast_dir):
@@ -130,7 +153,8 @@ def SplAdder_step6_contrast_test(contrs, spladder_out_dir, contrast_dir):
     cmd = ' '.join(command)
     print('SplAdder_Step6_contrast_test_run_command:\n%s' % cmd)
     outOut = open('stdout.out','a')
-    errOut = open('stderr.out','a')
+    errOut = open('ErrorReport.txt','a')
+    errOut.write('\nSplAdder_Step6_contrast_test_run_command:\n%s\n' % cmd)
     spladderStep6Proc = Popen(cmd, shell=True, stdout=outOut, stderr=errOut)
     stdoutput = spladderStep6Proc.communicate()[0]
     outOut.close()
@@ -148,18 +172,48 @@ def SplAdder_step7_parsing_statistic(contrs, parseRscript):
     cmd = ' '.join(command)
     print('SplAdder_Step7_parsing_statistic_run_command:\n%s' % cmd)
     outOut = open('stdout.out','a')
-    errOut = open('stderr.out','a')
+    errOut = open('ErrorReport.txt','a')
+    errOut.write('\nSplAdder_Step7_parsing_statistic_run_command:\n%s\n' % cmd)
     spladderStep7Proc = Popen(cmd, shell=True, stdout=outOut, stderr=errOut)
     stdoutput = spladderStep7Proc.communicate()[0]
     outOut.close()
     errOut.close()
 
 
+####################### Check Error Report  #####################################
+def Check_Error_Report():
+    fileopen = open('ErrorReport.txt', 'r')
+    fileread = fileopen.read()
+    fileopen.close()
+    errOut = open('ErrorReport.txt','a')
+    errorKeyWord = ['Execution halted', 'Error', 'error']
+    cleanUp = True
+    cf = open('cleanUp.sh','w')
+    cf.write('#Remove temporary files\n\n')
+    for e in errorKeyWord:
+        if e in fileread:
+            errOut.write('\nFind [ ' + e + ' ] error in report, please check it. For clean up manually please run cleanUp.sh\n')
+            cleanUp = False
+            for root, dirs, files in os.walk(spladder_out_dir):
+                for f in files:
+                    if f.endswith('pickle'):
+                        cf.write('rm ' + os.path.join(root, f) + '\n')
+    errOut.close()
+    cf.close()
+    return cleanUp
+
+####################### Clean Up temporary files  ###############################
+def Clean_Up(spladder_out_dir):
+    for root, dirs, files in os.walk(spladder_out_dir):
+        for f in files:
+            if f.endswith('pickle'):
+                os.remove(os.path.join(root, f))
+
 ####################### Run SplAdder ############################################
-def run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, host_or_symbiont, args):
+def run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, sampleType, args):
     # Run create directories function to create directory structure
     create_dirs(spladder_work_dir, spladder_out_dir, parsed_event_dir)
-
+    
     #---run step 1
     bamlist = open(input_bam_list, 'r')
     bams = []
@@ -207,6 +261,8 @@ def run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_ba
     pool.close()
     pool.join()
 
+
+
     #---run step 7
     parseRscript = spladder_out_dir + '/run_parse_spladder_output.R'
 
@@ -217,7 +273,9 @@ const <-args[3]
 
 # read in the event files for each contrast
 setwd(paste0("'''
+
     strR2 = spladder_out_dir
+
     strR3 = r'''/testing_",var1,const,"_vs_",var2,const,"_Rem_Prob"))
 
 ldf <- list()
@@ -236,17 +294,21 @@ one_ldf$const <- paste0(const)
 one_ldf$vrs <- paste0(var1,"vs",var2)
 
 # add a column for species name
-one_ldf$spec <- c("host")
+one_ldf$spec <- c("'''
+
+    strR3_1 = r'''")
 
 #write out the results as one table
 write.table(one_ldf, paste0("'''
 
-    if(host_or_symbiont == 'host'):
+    if(sampleType == 'host'):
         strR4 = parsed_event_dir + '/host_all_events'
-    else:
+    elif(sampleType == 'sym'):
         strR4 = parsed_event_dir + '/sym_all_events'
+    else:
+        strR4 = parsed_event_dir + '/other_all_events'
     strR5 = r'",var1,const,"_vs_",var2,const,".tsv"), quote = F, row.names = F)'
-    strR = strR1 + strR2 + strR3 + strR4 + strR5 + '\n'
+    strR = strR1 + strR2 + strR3 + sampleType + strR3_1 + strR4 + strR5 + '\n'
     parseR = open(parseRscript, 'w')
     parseR.write(strR)
     parseR.close()
@@ -258,16 +320,22 @@ write.table(one_ldf, paste0("'''
     pool.close()
     pool.join()    
 
+    #---run spladder program finished
+    
+
+
+
 
 ####################### Main ####################################################
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=DESCRIPTION)
-    parser.add_argument('WorkDir', help='work directory')
-    parser.add_argument('inputBamFileList', help='input .bam file name list')
-    parser.add_argument('genomeAnnotation', help='genome GFF/GTF file')
-    parser.add_argument('allContrasts', help='sample contrasts information: all_contrasts.txt')
-    parser.add_argument('contrastDir', help='sample contrasts information: contrast_file')
+    parser.add_argument('-w', '--WorkDir', help='work directory')
+    parser.add_argument('-i', '--inputBamFileList', help='input .bam file name list')
+    parser.add_argument('-a', '--genomeAnnotation', help='genome GFF/GTF file')
+    parser.add_argument('-c', '--allContrasts', help='sample contrasts information: all_contrasts.txt')
+    parser.add_argument('-d', '--contrastDir', help='sample contrasts information: contrast_file')
+    parser.add_argument('-s', '--sampleType', help='sample is host or symbiont or Other')
     
     args = parser.parse_args()
     
@@ -276,21 +344,46 @@ if __name__ == '__main__':
     genome_annotation = args.genomeAnnotation
     all_contrasts = args.allContrasts
     contrast_dir = args.contrastDir
+    sampleType = args.sampleType
 
     now = datetime.datetime.now()
     timeprint = now.strftime("%Y-%m-%d %H:%M")
     
-    host_or_symbiont = 'host'
-    spladder_work_dir = work_dir + '/host_spladder_jobs'
-    spladder_out_dir = work_dir + '/host_spladder_jobs' + '/array_spladder_out'
-    parsed_event_dir = work_dir + '/host_sym_parsed_event_files'
-    run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, host_or_symbiont, args)
+    if sampleType == 'host':
+        spladder_work_dir = work_dir + '/host_spladder_jobs'
+        spladder_out_dir = work_dir + '/host_spladder_jobs' + '/array_spladder_out'
+        parsed_event_dir = work_dir + '/host_sym_parsed_event_files'
+    elif sampleType == 'sym':
+        spladder_work_dir = work_dir + '/sym_spladder_jobs'
+        spladder_out_dir = work_dir + '/sym_spladder_jobs' + '/array_spladder_out'
+        parsed_event_dir = work_dir + '/host_sym_parsed_event_files'
+    else:
+        spladder_work_dir = work_dir + '/' + sampleType + '_spladder_jobs'
+        spladder_out_dir = work_dir + '/' + sampleType + '_spladder_jobs' + '/array_spladder_out'
+        parsed_event_dir = work_dir + '/' + sampleType + '_parsed_event_files'
 
-    #host_or_symbiont = 'sym'
-    #spladder_work_dir = work_dir + '/sym_spladder_jobs'
-    #spladder_out_dir = work_dir + '/sym_spladder_jobs' + '/array_spladder_out'
-    #parsed_event_dir = work_dir + '/host_sym_parsed_event_files'
-    #run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, host_or_symbiont, args)
+
+    errOut = open('ErrorReport.txt','w')
+    starttime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    errOut.write('Start: ' + starttime + '\n\n')
+    errOut.close()
+    run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, sampleType, args)
+    errOut = open('ErrorReport.txt','a')
+    endtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    errOut.write('\nEnd: ' + endtime + '\n\n')
+    errOut.close()
+    
+    cleanUp = Check_Error_Report()
+    
+    errOut = open('ErrorReport.txt','a')
+    if cleanUp:
+        Clean_Up(spladder_out_dir)
+        cleantime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        errOut.write('\nCleanedUp: ' + cleantime + '\n\n')
+    else:
+        cleantime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        errOut.write('\nCan not cleanedUp: ' + cleantime + '\n\n')     
+    errOut.close()
 
 
 
