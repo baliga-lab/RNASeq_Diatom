@@ -156,7 +156,7 @@ def SplAdder_step7_parsing_statistic(contrs, parseRscript):
 
 
 ####################### Run SplAdder ############################################
-def run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, sampleType, args):
+def run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, host_or_symbiont, args):
     # Run create directories function to create directory structure
     create_dirs(spladder_work_dir, spladder_out_dir, parsed_event_dir)
 
@@ -241,12 +241,10 @@ one_ldf$spec <- c("host")
 #write out the results as one table
 write.table(one_ldf, paste0("'''
 
-    if(sampleType == 'host'):
+    if(host_or_symbiont == 'host'):
         strR4 = parsed_event_dir + '/host_all_events'
-    elif(sampleType == 'sym'):
-        strR4 = parsed_event_dir + '/sym_all_events'
     else:
-        strR4 = parsed_event_dir + '/other_all_events'
+        strR4 = parsed_event_dir + '/sym_all_events'
     strR5 = r'",var1,const,"_vs_",var2,const,".tsv"), quote = F, row.names = F)'
     strR = strR1 + strR2 + strR3 + strR4 + strR5 + '\n'
     parseR = open(parseRscript, 'w')
@@ -270,7 +268,6 @@ if __name__ == '__main__':
     parser.add_argument('genomeAnnotation', help='genome GFF/GTF file')
     parser.add_argument('allContrasts', help='sample contrasts information: all_contrasts.txt')
     parser.add_argument('contrastDir', help='sample contrasts information: contrast_file')
-    parser.add_argument('hostSymType', help='sample is host or symbiont or Other')
     
     args = parser.parse_args()
     
@@ -279,28 +276,21 @@ if __name__ == '__main__':
     genome_annotation = args.genomeAnnotation
     all_contrasts = args.allContrasts
     contrast_dir = args.contrastDir
-    sampleType = args.hostSymType
 
     now = datetime.datetime.now()
     timeprint = now.strftime("%Y-%m-%d %H:%M")
     
-    if sampleType == 'host':
-        spladder_work_dir = work_dir + '/host_spladder_jobs'
-        spladder_out_dir = work_dir + '/host_spladder_jobs' + '/array_spladder_out'
-        parsed_event_dir = work_dir + '/host_sym_parsed_event_files'
-        run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, sampleType, args)
-    elif sampleType = 'sym':
-        spladder_work_dir = work_dir + '/sym_spladder_jobs'
-        spladder_out_dir = work_dir + '/sym_spladder_jobs' + '/array_spladder_out'
-        parsed_event_dir = work_dir + '/host_sym_parsed_event_files'
-        run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, sampleType, args)
-    else:
-        spladder_work_dir = work_dir + '/' + sampleType + '_spladder_jobs'
-        spladder_out_dir = work_dir + '/' + sampleType + '_spladder_jobs' + '/array_spladder_out'
-        parsed_event_dir = work_dir + '/' + sampleType + '_sym_parsed_event_files'
-        run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, sampleType, args)
+    host_or_symbiont = 'host'
+    spladder_work_dir = work_dir + '/host_spladder_jobs'
+    spladder_out_dir = work_dir + '/host_spladder_jobs' + '/array_spladder_out'
+    parsed_event_dir = work_dir + '/host_sym_parsed_event_files'
+    run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, host_or_symbiont, args)
 
-
+    #host_or_symbiont = 'sym'
+    #spladder_work_dir = work_dir + '/sym_spladder_jobs'
+    #spladder_out_dir = work_dir + '/sym_spladder_jobs' + '/array_spladder_out'
+    #parsed_event_dir = work_dir + '/host_sym_parsed_event_files'
+    #run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, host_or_symbiont, args)
 
 
 
