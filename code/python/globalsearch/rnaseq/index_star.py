@@ -12,6 +12,7 @@ wasting time as this is a very costly step.
 import argparse
 import os
 import subprocess
+import glob
 
 
 DESCRIPTION = """index_star_salmon.py - Create genome index using STAR"""
