@@ -76,6 +76,23 @@ class FindFilesTest(unittest.TestCase):
         self.assertEqual(result, [('/inputdata/R1/R1_1.fq.gz', '/inputdata/R1/R1_2.fq.gz')])
 
 
+    #
+    # TEST FOR SINGLE READ SETUPS
+    #
+    def __make_input_folder_single(self, folder_name, samples, pattern="%s_%s_1.fastq.gz"):
+        for sample in samples:
+            dir = "inputdata/%s" % folder_name
+            self.mem_fs.makedir(dir)
+            fname = pattern % (folder_name, sample)
+            self.mem_fs.touch(fs.path.combine(dir, fname))
+
+    def test_find_fastq_files_single(self):
+        """Find single reads"""
+        self.__make_input_folder_single("SRR401853", ["GSM818457_Control"])
+        result = find_files.find_fastq_files("/inputdata/SRR401853", ["*_{{readnum}}.fastq.gz"], filesys=self.mem_fs)
+        self.assertEqual(result, [('/inputdata/SRR401853/SRR401853_GSM818457_Control_1.fastq.gz', None)])
+
+
 if __name__ == '__main__':
     SUITE = []
     SUITE.append(unittest.TestLoader().loadTestsFromTestCase(FindFilesTest))

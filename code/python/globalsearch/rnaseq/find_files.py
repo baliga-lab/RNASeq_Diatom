@@ -57,10 +57,10 @@ def _find_fastq_files(data_folder, patterns, rootfs):
             # keep "pairnum" for legacy reasons
             pattern = templ.render({'pairnum': read_num, 'readnum': read_num})
             pattern = fs.path.combine('/**', pattern)
-            print("SEARCHING PATTERN: '%s'" % pattern, flush=True)
+            #print("SEARCHING PATTERN: '%s'" % pattern, flush=True)
             for match in filesys.glob(pattern):
                 patmatch[read_num].append(fs.path.combine(data_folder, match.path))
-        print("PATMATCH: ", patmatch)
+        #print("PATMATCH: ", patmatch)
         try:
             first = patmatch[1][0]
         except:
