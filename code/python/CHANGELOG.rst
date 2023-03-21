@@ -5,6 +5,8 @@ Version 0.1.8, 2023/03/10
 -------------------------
 
   - bug fix in index_star
+  - support for both single and paired end FASTQ in STAR/Salmon
+  - improved file detection
 
 Version 0.1.7, 2023/02/28
 -------------------------

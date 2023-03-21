@@ -43,7 +43,6 @@ def run_star(first_pair_group, second_pair_group, results_dir, folder_name, geno
     command = ["STAR", "--genomeDir", genome_dir]
     command += star_options
     if args.outSAMattributes != "Standard" and len(args.outSAMattributes) > 0:
-        print(args.outSAMattributes, flush=True)
         out_sam_attrs = args.outSAMattributes.split()
         command.append('--outSAMattributes')
         command += out_sam_attrs
@@ -66,7 +65,6 @@ def run_star(first_pair_group, second_pair_group, results_dir, folder_name, geno
     command += ["--genomeLoad", genome_load]
 
     cmd = ' '.join(command)
-    print('STAR run command:%s' % cmd, flush=True)
     compl_proc = subprocess.run(command, check=True, capture_output=False, cwd=results_dir)
 
 ####################### Deduplication (not in _old) ###############################
@@ -175,28 +173,35 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, args):
 
     # Loop through each file and create filenames
     file_count = 1
+
+    is_gzip = True
+    is_paired_end = True
+
     for pair_file in pair_files:
         first_pair_file, second_pair_file = pair_file
-        first_file_name_full = first_pair_file.split('/')[-1]
-        second_file_name_full = second_pair_file.split('/')[-1]
-        file_ext = first_pair_file.split('.')[-1]
+        if second_pair_file is None:
+            is_paired_end = False
 
-        print ('\033[32m Processing File: %s of %s (%s)\033[0m' % (file_count, len(pair_files), first_file_name_full ), flush=True)
+        fastq_fname = os.path.basename(first_pair_file)
+        is_gzip = fastq_fname.endswith("gz")
+        if is_gzip:
+            file_ext = '.'.join(fastq_fname.split('.')[-2:])
+        else:
+            file_ext = fastq_fname.split('.')[-1]
 
-        first_file_name = re.split('.fq|.fq.gz',first_file_name_full)[0]
-        second_file_name = re.split('.fq|.fq.gz',second_file_name_full)[0]
-        print('first_file_name:%s, second_file_name:%s' % (first_file_name,second_file_name), flush=True)
+        print('\033[32m Processing File: %s of %s ("%s")\033[0m' % (file_count, len(pair_files), first_pair_file),
+              flush=True)
 
         # Collect Sample attributes
-        sample_id = re.split('.fq|.fq.gz', first_file_name)[0]
+        sample_id = fastq_fname.replace(file_ext, "")
         print("sample_id: %s" % sample_id, flush=True)
 
         # Run TrimGalore
-        trim_galore(first_pair_file,second_pair_file,folder_name,sample_id,file_ext,data_trimmed_dir,fastqc_dir)
+        trim_galore(first_pair_file, second_pair_file, folder_name,sample_id, data_trimmed_dir, fastqc_dir)
         file_count += 1
 
     # Collect Trimmed data for input into STAR
-    first_pair_group, second_pair_group, pair_files = collect_trimmed_data(data_trimmed_dir, file_ext)
+    first_pair_group, second_pair_group = collect_trimmed_data(data_trimmed_dir, is_gzip, is_paired_end)
 
     # Run STAR
     run_star(first_pair_group, second_pair_group, results_dir, folder_name, genome_dir, args)
