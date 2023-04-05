@@ -9,7 +9,7 @@ Description: Support functions for the Global Search pipeline.
     The Python pipeline functions depend on this library through rpy2.
 License: `use_lgpl3_license()`
 Depends:
-    R (>= 3.6.3)
+    R (>= 3.5.1)
 Imports:
     tidyr,
     dplyr,
