@@ -64,6 +64,14 @@ def run_star(first_pair_group, second_pair_group, results_dir, folder_name, geno
                  "--outFileNamePrefix", outfile_prefix]
     command += ["--genomeLoad", genome_load]
 
+    # add more optional arguments
+    if args.sjdbGTFfeatureExon is not None:
+        command += ["--sjdbGTFfeatureExon", args.sjdbGTFfeatureExon]
+    if args.sjdbGTFtagExonParentGene is not None:
+        command += ["--sjdbGTFtagExonParentGene", args.sjdbGTFtagExonParentGene]
+    if args.quantMode is not None:
+        command += ["--quantMode", args.quantMode]
+
     cmd = ' '.join(command)
     compl_proc = subprocess.run(command, check=True, capture_output=False, cwd=results_dir)
 
@@ -212,6 +220,9 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, args):
         dedup(results_dir,folder_name)
 
     # Run Salmon Quant
+    if args.salmon_genome_fasta is not None:
+        genome_fasta = args.salmon_genome_fasta
+
     run_salmon_quant(results_dir, folder_name, genome_fasta)
     folder_count += 1
 
@@ -242,6 +253,12 @@ if __name__ == '__main__':
     parser.add_argument('--sjdbGTFtagExonParentTranscript', default="Parent")
     parser.add_argument('--sjdbOverhang', type=int, default=None)
     parser.add_argument('--limitSjdbInsertNsj', type=int, default=1602710)
+
+    parser.add_argument('--sjdbGTFfeatureExon')
+    parser.add_argument('--sjdbGTFtagExonParentGene')
+    parser.add_argument('--quantMode')
+    parser.add_argument('--salmon_genome_fasta')
+
     args = parser.parse_args()
 
     now = datetime.datetime.now()

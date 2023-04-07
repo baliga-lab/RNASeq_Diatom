@@ -28,6 +28,14 @@ def create_genome_index(genome_dir, genome_fasta, args):
                      '--genomeFastaFiles', genome_fasta,
                      '--genomeChrBinNbits', str(args.genomeChrBinNbits),
                      '--genomeSAindexNbases', str(args.genomeSAindexNbases)]
+    # optional commands
+    if args.sjdbGTFfeatureExon is not None:
+        index_command += ["sjdbGTFfeatureExon", args.sjdbGTFfeatureExon]
+    if args.sjdbGTFtagExonParentTranscript is not None:
+        index_command += ["sjdbGTFtagExonParentTranscript", args.sjdbGTFtagExonParentTranscript]
+    if args.sjdbGTFtagExonParentTranscript is not None:
+        index_command += ["sjdbGTFtagExonParentGene", args.sjdbGTFtagExonParentGene]
+
     index_cmd = ' '.join(index_command)
     print("RUNNING STAR in index MODE: '%s'" % index_cmd, flush=True)
 
@@ -48,6 +56,10 @@ if __name__ == '__main__':
     parser.add_argument('--runThreadN', type=int, default=32)
     parser.add_argument('--genomeChrBinNbits', type=int, default=16)
     parser.add_argument('--genomeSAindexNbases', type=int, default=12)
+    parser.add_argument("--sjdbGTFfeatureExon")
+    parser.add_argument("--sjdbGTFtagExonParentTranscript")
+    parser.add_argument("--sjdbGTFtagExonParentGene")
+
     args = parser.parse_args()
     if args.genome_fasta is not None and os.path.exists(args.genome_fasta):
         genome_fasta = args.genome_fasta

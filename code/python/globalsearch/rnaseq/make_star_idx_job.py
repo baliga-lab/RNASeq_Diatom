@@ -81,6 +81,21 @@ if __name__ == '__main__':
             options.append("--genomeSAindexNbases %d" % star_index_options['genomeSAindexNbases'])
         except KeyError:
             pass
+
+        try:
+            options.append("--sjdbGTFfeatureExon %s" % star_index_options['sjdbGTFfeatureExon'])
+        except KeyError:
+            pass
+        try:
+            options.append("--sjdbGTFtagExonParentTranscript %s" % star_index_options['sjdbGTFtagExonParentTranscript'])
+        except KeyError:
+            pass
+        try:
+            options.append("--sjdbGTFtagExonParentGene %s" % star_index_options['sjdbGTFtagExonParentGene'])
+        except KeyError:
+            pass
+
+
         config['star_index_cmd_options'] = ' '.join(options)
     except KeyError:
         pass

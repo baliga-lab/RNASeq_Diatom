@@ -1,0 +1,51 @@
+{
+    "input_dir": "/proj/omics4tb2/wwu/GlobalSearch.old/Pilot_Fail_Concat/rawdata",
+    "genome_dir": "/proj/omics4tb2/wwu/GlobalSearch.old/reference_genomes/past_smic",
+    "output_dir": "/proj/omics4tb2/wwu/Global_Search/redsea-output",
+    "postrun_output_dir": "/proj/omics4tb2/wwu/Global_Search/redsea-postrun-output",
+    "log_dir": "/proj/omics4tb2/wwu/slurm_logs2",
+    "genome_fasta": "/proj/omics4tb2/wwu/GlobalSearch.old/reference_genomes/past_smic/Past_Smic_merged_CDS_suffixed.fasta",
+    "genome_gff": "",
+    "fastq_patterns": ["*_{{readnum}}.fq*", "*_{{readnum}}.fastq*"],
+    "includes": ["R1"],
+    "include_file": "",
+    "deduplicate_bam_files": false,
+    "rnaseq_algorithm": "star_salmon",
+    "star_options": {
+        "runThreadN": 32,
+        "limitBAMsortRAM": 5784458574,
+        "outFilterMismatchNmax": 10,
+        "outFilterMismatchNoverLmax": 0.3,
+        "outFilterScoreMinOverLread": 0.66,
+        "outFilterMatchNmin": 0,
+        "twopassMode": false,
+        "outSAMattributes": ["All"],
+        "sjdbGTFtagExonParentTranscript": "Parent",
+        "limitSjdbInsertNsj": 1602710,
+
+        "sjdbGTFfeatureExon": "VNG00001c",
+        "sjdbGTFtagExonParentGene": "locus",
+        "quantMode": "TranscriptomeSAM"
+    },
+    "star_index_options": {
+        "runThreadN": 32,
+        "genomeChrBinNbits": 16,
+        "genomeSAindexNbases": 12,
+
+        "sjdbGTFfeatureExon": "VNG00001c",
+        "sjdbGTFtagExonParentTranscript": "Parent",
+        "sjdbGTFtagExonParentGene": "locus"
+    },
+    "salmon_options": {
+        "genome_fasta": "/proj/omics4tb2/wwu/GlobalSearch.old/reference_genomes/past_smic/Past_Smic_merged_CDS_suffixed.fasta"
+    },
+    "sbatch_options": {
+        "array_max_tasks": 10,
+        "star_salmon": {
+            "options": [
+                "--mem=8G"
+            ],
+            "extras": []
+        }
+    }
+}

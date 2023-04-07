@@ -24,7 +24,7 @@ salmon_prefix="salmon_{{star_options.outFilterMismatchNmax}}_{{star_options.outF
 
 {{sbatch_extras}}
 
-python3 -m globalsearch.rnaseq.run_star_salmon {{twopass_mode}} {{fastq_patterns}} {{runThreadN}} {{out_sam_attributes}} --outFilterMismatchNmax {{star_options.outFilterMismatchNmax}} --outFilterMismatchNoverLmax {{star_options.outFilterMismatchNoverLmax}} --outFilterScoreMinOverLread {{star_options.outFilterScoreMinOverLread}} --outFilterMatchNmin {{star_options.outFilterMatchNmin}} {{dedup_option}} --starPrefix $star_prefix --salmonPrefix $salmon_prefix {{genome_gff_option}} {{genome_fasta_option}} {{genome_dir}} {{input_dir}} $data_folder {{output_dir}}
+python3 -m globalsearch.rnaseq.run_star_salmon {{star_extra_options}} {{salmon_extra_options}} {{twopass_mode}} {{fastq_patterns}} {{runThreadN}} {{out_sam_attributes}} --outFilterMismatchNmax {{star_options.outFilterMismatchNmax}} --outFilterMismatchNoverLmax {{star_options.outFilterMismatchNoverLmax}} --outFilterScoreMinOverLread {{star_options.outFilterScoreMinOverLread}} --outFilterMatchNmin {{star_options.outFilterMatchNmin}} {{dedup_option}} --starPrefix $star_prefix --salmonPrefix $salmon_prefix {{genome_gff_option}} {{genome_fasta_option}} {{genome_dir}} {{input_dir}} $data_folder {{output_dir}}
 """
 
 DESCRIPTION = """make_star_salmon_job.py - Create STAR Salmon job file for Slurm"""
@@ -98,6 +98,29 @@ if __name__ == '__main__':
             pass  # ignore if doesn't exist
     except:
         pass
+
+    # More extra options
+    star_extra_options = []
+    try:
+        star_extra_options += ["--sjdbGTFfeatureExon", config['star_options']['sjdbGTFfeatureExon']]
+    except:
+        pass
+    try:
+        star_extra_options += ["--sjdbGTFtagExonParentTranscript", config['star_options']['sjdbGTFtagExonParentTranscript']]
+    except:
+        pass
+    try:
+        star_extra_options += ["--sjdbGTFtagExonParentGene", config['star_options']['sjdbGTFtagExonParentGene']]
+    except:
+        pass
+    config['star_extra_options'] = ' '.join(star_extra_options)
+
+    salmon_extra_options = []
+    try:
+        salmon_extra_options += ["--salmon_genome_fasta", config['salmon_options']['genome_fasta']]
+    except:
+        pass
+    config['salmon_extra_options'] = ' '.join(salmon_extra_options)
 
     # see if optional genome_fasta exists
     try:
