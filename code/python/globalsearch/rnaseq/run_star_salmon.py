@@ -135,6 +135,11 @@ def run_salmon_quant(results_dir, folder_name, genome_fasta):
     else:
         salmon_input = '%sAligned.out.bam' % (outfile_prefix)
 
+        # Use BAM file aligned to transcriptome for salmon input if it exists
+        salmon_transcriptome_input = "%sAligned.toTranscriptome.out.bam" % outfile_prefix
+        if os.path.exists(salmon_transcriptome_input):
+            salmon_input = salmon_transcriptome_input
+
     command = ['salmon', 'quant', '-t', genome_fasta,
         '-l', 'A',  '-a',  salmon_input, '-o', '%s/%s_salmon_quant' % (results_dir, args.salmonPrefix)]
     cmd = ' '.join(command)
