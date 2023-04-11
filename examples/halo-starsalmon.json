@@ -25,7 +25,7 @@
 
         "sjdbGTFfeatureExon": "VNG00001c",
         "sjdbGTFtagExonParentGene": "locus",
-        "quantMode": "TranscriptomeSAM"
+        "quantMode": ["TranscriptomeSAM", "GeneCounts"]
     },
     "star_index_options": {
         "runThreadN": 32,

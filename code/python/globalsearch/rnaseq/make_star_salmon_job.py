@@ -113,6 +113,12 @@ if __name__ == '__main__':
         star_extra_options += ["--sjdbGTFtagExonParentGene", config['star_options']['sjdbGTFtagExonParentGene']]
     except:
         pass
+    try:
+        quantmode = config['star_options']['quantMode']
+        star_extra_options += ["--quantMode"]
+        star_extra_options += quantmode
+    except:
+        pass
     config['star_extra_options'] = ' '.join(star_extra_options)
 
     salmon_extra_options = []

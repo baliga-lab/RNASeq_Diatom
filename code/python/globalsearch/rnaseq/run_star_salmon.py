@@ -70,7 +70,7 @@ def run_star(first_pair_group, second_pair_group, results_dir, folder_name, geno
     if args.sjdbGTFtagExonParentGene is not None:
         command += ["--sjdbGTFtagExonParentGene", args.sjdbGTFtagExonParentGene]
     if args.quantMode is not None:
-        command += ["--quantMode", args.quantMode]
+        command += ["--quantMode"] + args.quantMode
 
     cmd = ' '.join(command)
     compl_proc = subprocess.run(command, check=True, capture_output=False, cwd=results_dir)
@@ -261,7 +261,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--sjdbGTFfeatureExon')
     parser.add_argument('--sjdbGTFtagExonParentGene')
-    parser.add_argument('--quantMode')
+    parser.add_argument('--quantMode', nargs="+")
     parser.add_argument('--salmon_genome_fasta')
 
     args = parser.parse_args()
