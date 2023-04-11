@@ -1,11 +1,26 @@
 Changes
 =======
 
+Version 0.2.1, 2023/04/11
+-------------------------
+
+  - STAR: support for multi-valued quantMode
+
+Version 0.2.0, 2023/04/11
+-------------------------
+
+  - Salmon using transcriptome aligned file when possible
+
 Version 0.1.9, 2023/04/07
 -------------------------
 
   - added more STAR options
   - added Salmon options
+
+Version 0.1.8, 2023/04/07
+-------------------------
+
+  - single end files support
 
 Version 0.1.7, 2023/02/28
 -------------------------
