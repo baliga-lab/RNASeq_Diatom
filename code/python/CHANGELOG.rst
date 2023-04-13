@@ -1,6 +1,11 @@
 Changes
 =======
 
+Version 0.2.2, 2023/04/13
+-------------------------
+
+  - Postrun: made organisms flexible, configurable
+
 Version 0.2.1, 2023/04/11
 -------------------------
 

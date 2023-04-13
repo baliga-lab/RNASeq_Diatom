@@ -1,4 +1,5 @@
 {
+    "organisms": ["hal"],
     "input_dir": "/proj/omics4tb2/wwu/GlobalSearch.old/Pilot_Fail_Concat/rawdata",
     "genome_dir": "/proj/omics4tb2/wwu/GlobalSearch.old/reference_genomes/past_smic",
     "output_dir": "/proj/omics4tb2/wwu/Global_Search/halo-output",

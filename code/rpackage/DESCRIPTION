@@ -1,6 +1,6 @@
 Package: GlobalSearch
 Title: R support functions for the Global Search pipeline
-Version: 0.0.0.1
+Version: 0.0.0.2
 Authors@R: c(
 	person("Serdar", "Turkarslan", , "sturkarslan@isbscience.org", role=c("aut")),
 	person("Wei-ju", "Wu", , "wwu@isbscience.org", role=c("aut", "cre")))

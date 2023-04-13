@@ -9,11 +9,6 @@ library(readr)
 library(fs)
 
 # Input parameters
-#organism1 = 'Past'
-#organism2 = 'Smic'
-#organisms = paste(organism1, organism2, sep='_')
-#cat("ORGANISMS: ", organisms, "\n", sep='')
-
 # derived constants
 #KALLISTO_ABUNDANCE_PATH = paste("/results_Kallisto_", organisms, "-reefGenomics/abundance.tsv", sep="")
 #BWA_SALMON_QUANT_SF_PATH = paste("/results_bwa_Salmon_", organisms, "-reefGenomics/salmon_quant/quant.sf", sep="")
@@ -78,18 +73,17 @@ extract_salmon_quant_numreads = function(salmon_files, analysis_dir) {
     dplyr::rename(gene_id=`data$Name`)
 }
 
-write_out_tables <- function(merged_df, outdir, algo, typename, organism1, organism2) {
-  organisms = paste(organism1, organism2, sep='_')
-  df_org1 <- merged_df %>% dplyr::filter(grepl(organism1, gene_id))
-  df_org2 <- merged_df %>% dplyr::filter(grepl(organism2, gene_id))
-
+write_out_tables <- function(merged_df, outdir, algo, typename, org_vec) {
+  organisms = paste(org_vec, collapse='_')
   # write into  file
   merged_file = paste(outdir, "/", algo, "_", organisms, "_", typename, "_Merged.csv", sep='')
-  org1_file = paste(outdir, "/", algo, "_", organisms, "_", typename, "_", organism1, ".csv", sep='')
-  org2_file = paste(outdir, "/", algo, "_", organisms, "_", typename, "_", organism2, ".csv", sep='')
   readr::write_csv(merged_df, file=merged_file)
-  readr::write_csv(df_org1, file=org1_file)
-  readr::write_csv(df_org2, file=org2_file)
+
+  for (org in org_vec) {
+      df_org <- merged_df %>% dplyr::filter(grepl(org, gene_id))
+      org_file = paste(outdir, "/", algo, "_", organisms, "_", typename, "_", org, ".csv", sep='')
+      readr::write_csv(df_org, file=org_file)
+  }
 }
 
 # default regular expression for extract_salmon_quants()
@@ -108,7 +102,7 @@ STAR_SALMON_REGEXP = "*/*salmon_quant/quant.sf"
 #' @param regexp the regular expression to match files. Default
 #'     value: "*/*salmon_quant/quant.sf"
 #' @export
-extract_salmon_quants <- function(organism1, organism2, analysis_dir, outdir,
+extract_salmon_quants <- function(organisms, analysis_dir, outdir,
 		                  regexp=STAR_SALMON_REGEXP) {
   # Step 1. Sanitize the analysis directory path, otherwise we
   # get weird effects
@@ -130,8 +124,8 @@ extract_salmon_quants <- function(organism1, organism2, analysis_dir, outdir,
   salmon_files <- fs::dir_ls(analysis_dir, regexp=regexp, recurse=T)
   salmon_tpm_df <- extract_salmon_quant_tpms(salmon_files, analysis_dir);
   salmon_numreads_df <- extract_salmon_quant_numreads(salmon_files, analysis_dir);
-  write_out_tables(salmon_tpm_df, tpm_dir, "STAR_Salmon", 'TPM_matrix', organism1, organism2);
-  write_out_tables(salmon_numreads_df, count_dir, "STAR_Salmon", 'NumReads_matrix', organism1, organism2);
+  write_out_tables(salmon_tpm_df, tpm_dir, "STAR_Salmon", 'TPM_matrix', organisms);
+  write_out_tables(salmon_numreads_df, count_dir, "STAR_Salmon", 'NumReads_matrix', organisms);
 }
 
 ## Function to extract TPM from each file
@@ -143,8 +137,8 @@ rsem_quant_extractor = function(fname) {
 }
 
 ## Extract Bowtie2/RSEM quants
-extract_bowtie2rsem_quants <- function(organism1, organism2, analysis_dir, outdir) {
-  organisms = paste(organism1, organism2, sep='_')
+extract_bowtie2rsem_quants <- function(org_vec, analysis_dir, outdir) {
+  organisms = paste(org_vec, collapse='_')
   message("Extract Bowtie2/RSEM calculated quants")
   rsem_files <- fs::dir_ls(analysis_dir, glob="*.genes.results", recurse=T)
 
@@ -157,21 +151,16 @@ extract_bowtie2rsem_quants <- function(organism1, organism2, analysis_dir, outdi
     dplyr::rename_with(~ gsub(".genes.results", "", .x, fixed=TRUE)) %>%
     dplyr::rename(gene_id=`data$gene_id`)
 
-  # filter for Acerv
-  rsem_df_org1 <- rsem_df %>%
-    dplyr::filter(grepl(organism1, gene_id))
-
-  # filter for Smic
-  rsem_df_org2 <- rsem_df %>%
-    dplyr::filter(grepl(organism2, gene_id))
-
   # write into  file
   merged_file = paste(outdir, "/Bowtie_RSEM_", organisms, "_TPM_matrix_Merged.csv", sep='')
-  org1_file = paste(outdir, "/Bowtie_RSEM_", organisms, "_TPM_matrix_", organism1, ".csv", sep='')
-  org2_file = paste(outdir, "/Bowtie_RSEM_", organisms, "_TPM_matrix_", organism2, ".csv", sep='')
   readr::write_csv(rsem_df, file=merged_file)
-  readr::write_csv(rsem_df_org1, file=org1_file)
-  readr::write_csv(rsem_df_org2, file=org2_file)
+
+  for (org in org_vec) {
+      # filter for Acerv
+      rsem_df_org <- rsem_df %>% dplyr::filter(grepl(org, gene_id))
+      org_file = paste(outdir, "/Bowtie_RSEM_", organisms, "_TPM_matrix_", org, ".csv", sep='')
+      readr::write_csv(rsem_df_org, file=org_file)
+  }
 }
 
 ## Function to extract TPM from each file
@@ -183,9 +172,9 @@ kallisto_quant_extractor = function(fname) {
 }
 
 ## Extract Kallisto results
-extract_kallisto_quants <- function(organism1, organism2, analysis_dir, outdir) {
+extract_kallisto_quants <- function(org_vec, analysis_dir, outdir) {
   message("Extract Kallisto calculated quants")
-  organisms = paste(organism1, organism2, sep='_')
+  organisms = paste(org_vec, collapse='_')
   kallisto_files <- fs::dir_ls(analysis_dir, glob="*/abundance.tsv", recurse=T)
 
   # get the file list and pipe it into our extractor function
@@ -197,16 +186,15 @@ extract_kallisto_quants <- function(organism1, organism2, analysis_dir, outdir) 
     dplyr::rename_with(~ gsub(KALLISTO_ABUNDANCE_PATH, "", .x, fixed=TRUE)) %>%
     dplyr::rename(gene_id=`data$target_id`)
 
-  kallisto_df_org1 <- kallisto_df %>% dplyr::filter(grepl(organism1, gene_id))
-  kallisto_df_org2 <- kallisto_df %>% dplyr::filter(grepl(organism2, gene_id))
-
   # write into  file
   merged_file = paste(outdir, "/Kallisto_", organisms, "_TPM_matrix_Merged.csv", sep='')
-  org1_file = paste(outdir, "/Kallisto_", organisms, "_TPM_matrix_", organism1, ".csv", sep='')
-  org2_file = paste(outdir, "/Kallisto_", organisms, "_TPM_matrix_", organism2, ".csv", sep='')
   readr::write_csv(kallisto_df, file=merged_file)
-  readr::write_csv(kallisto_df_org1, file=org1_file)
-  readr::write_csv(kallisto_df_org2, file=org2_file)
+
+  for (org in org_vec) {
+      kallisto_df_org <- kallisto_df %>% dplyr::filter(grepl(org, gene_id))
+      org_file = paste(outdir, "/Kallisto_", organisms, "_TPM_matrix_", org, ".csv", sep='')
+      readr::write_csv(kallisto_df_org, file=org_file)
+  }
 }
 
 ## Function to extract TPM from each file
@@ -218,9 +206,9 @@ bwa_quant_extractor = function(fname) {
 }
 
 ## Extract bwa/Salmon results
-extract_bwasalmon_results <- function(organism1, organism2, analysis_dir, outdir) {
+extract_bwasalmon_results <- function(org_vec, analysis_dir, outdir) {
   message("Extract bwa/Salmon results")
-  organisms = paste(organism1, organism2, sep='_')
+  organisms = paste(org_vec, collapse='_')
   bwa_files <- fs::dir_ls(analysis_dir, regexp=BWA_SALMON_REGEXP, recurse=T)
 
   # get the file list and pipe it into our extractor function
@@ -232,17 +220,14 @@ extract_bwasalmon_results <- function(organism1, organism2, analysis_dir, outdir
     dplyr::rename_with(~ gsub(BWA_SALMON_QUANT_SF_PATH, "", .x, fixed=TRUE)) %>%
     dplyr::rename(gene_id = `data$Name`)
 
-  bwa_df_org1 <- bwa_df %>% dplyr::filter(grepl(organism1, gene_id))
-  bwa_df_org2 <- bwa_df %>% dplyr::filter(grepl(organism2, gene_id))
-
-  # write into  file
   merged_file = paste(outdir, "/bwa_Salmon_", organisms, "_TPM_matrix_Merged.csv", sep='')
-  org1_file = paste(outdir, "/bwa_Salmon_", organisms, "_TPM_matrix_", organism1, ".csv", sep='')
-  org2_file = paste(outdir, "/bwa_Salmon_", organisms, "_TPM_matrix_", organism2, ".csv", sep='')
+  readr::write_csv(bwa_df, file=merged_file)
 
-  readr::write_csv(bwa_df, file=BWA_DF_MERGED_FILE)
-  readr::write_csv(bwa_df_org1, file=BWA_DF_ORG1_FILE)
-  readr::write_csv(bwa_df_org2, file=BWA_DF_ORG2_FILE)
+  for (org in org_vec) {
+      bwa_df_org <- bwa_df %>% dplyr::filter(grepl(org, gene_id))
+      org_file = paste(outdir, "/bwa_Salmon_", organisms, "_TPM_matrix_", org, ".csv", sep='')
+      readr::write_csv(bwa_df_org, file=org_file)
+  }
 }
 
 #select <- order(rowMeans(kallisto_df_Acerv)[2:126], decreasing=TRUE)[1:20]

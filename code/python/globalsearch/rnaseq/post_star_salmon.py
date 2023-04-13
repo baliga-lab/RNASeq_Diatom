@@ -11,6 +11,7 @@ This includes
 import argparse
 import json
 from rpy2.robjects.packages import importr
+from rpy2.robjects.vectors import StrVector
 import subprocess
 import os
 
@@ -33,10 +34,11 @@ if __name__ == '__main__':
         postrun_outdir = os.path.join(output_dir, "Post_Run_Results")
 
     genome_dir = config['genome_dir']
-    org1, org2 = os.path.basename(genome_dir).split('_')
+    organisms = config['organisms']
+    #org1, org2 = os.path.basename(genome_dir).split('_')
     print('\033[33mExtracting salmon quant files...\033[0m')
     global_search = importr("GlobalSearch")
-    global_search.extract_salmon_quants(org1, org2, output_dir, postrun_outdir)
+    global_search.extract_salmon_quants(StrVector(organisms), output_dir, postrun_outdir)
     # now run MultiQC
     print('\033[33mRunning MultiQC...\033[0m')
     multiqc_outdir = os.path.join(postrun_outdir, 'MultiQC')
