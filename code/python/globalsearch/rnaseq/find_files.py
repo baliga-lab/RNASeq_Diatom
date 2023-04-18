@@ -55,11 +55,14 @@ def _find_fastq_files(data_folder, patterns, rootfs):
         patmatch = defaultdict(list)
         for read_num in [1, 2]:
             # keep "pairnum" for legacy reasons
-            pattern = templ.render({'pairnum': read_num, 'readnum': read_num})
-            pattern = fs.path.combine('/**', pattern)
+            pattern_replace_readnum = templ.render({'pairnum': read_num, 'readnum': read_num})
+            pattern = fs.path.combine('/**', pattern_replace_readnum)
             #print("SEARCHING PATTERN: '%s'" % pattern, flush=True)
-            for match in filesys.glob(pattern):
-                patmatch[read_num].append(fs.path.combine(data_folder, match.path))
+            if pattern_replace_readnum == pat and read_num == 2:  # no readnum provided in pattern
+                patmatch[read_num].append(None)
+            else:
+                for match in filesys.glob(pattern):
+                    patmatch[read_num].append(fs.path.combine(data_folder, match.path))
         #print("PATMATCH: ", patmatch)
         try:
             first = patmatch[1][0]
