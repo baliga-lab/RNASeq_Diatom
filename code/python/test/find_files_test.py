@@ -92,6 +92,12 @@ class FindFilesTest(unittest.TestCase):
         result = find_files.find_fastq_files("/inputdata/SRR401853", ["*_{{readnum}}.fastq.gz"], filesys=self.mem_fs)
         self.assertEqual(result, [('/inputdata/SRR401853/SRR401853_GSM818457_Control_1.fastq.gz', None)])
 
+    def test_find_fastq_files_single_no_wildcard(self):
+        """Find single reads"""
+        self.__make_input_folder_single("SRR401853", ["GSM818457_Control"])
+        result = find_files.find_fastq_files("/inputdata/SRR401853", ["*.fastq.gz"], filesys=self.mem_fs)
+        self.assertEqual(result, [('/inputdata/SRR401853/SRR401853_GSM818457_Control_1.fastq.gz', None)])
+
 
 if __name__ == '__main__':
     SUITE = []
