@@ -5,7 +5,7 @@ import fs
 TRIMGALORE_SUFFIX_SINGLE = "_trimmed.fq"
 TRIMGALORE_SUFFIX_PAIRED = "_val_1.fq"
 PAIRED_END_FQ_PATTERN = '/*_val_%d.fq'
-SINGLE_END_FQ_PATTERN = '/*_1_trimmed.fq'
+SINGLE_END_FQ_PATTERN = '/*_trimmed.fq'
 
 """
 trim_galore --fastqc_args "--outdir /proj/omics4tb2/wwu/Global_Search/redsea-output/R1/fastqc_results/" --paired --output_dir /proj/omics4tb2/wwu/Global_Search/redsea-output/R1/trimmed/ /proj/omics4tb2/wwu/GlobalSearch.old/Pilot_Fail_Concat/rawdata/R1/R1_concat_1.fq.gz /proj/omics4tb2/wwu/GlobalSearch.old/Pilot_Fail_Concat/rawdata/R1/R1_concat_2.fq.gz"""

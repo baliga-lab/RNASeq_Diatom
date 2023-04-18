@@ -21,11 +21,11 @@ class TrimGaloreTest(unittest.TestCase):
                 fname = pattern % (i, j + 1, j + 1)
                 self.mem_fs.touch(fs.path.combine(dir, fname))
 
-    def __make_single_folder(self, num_samples=1, pattern="R%d_%d_trimmed.fq.gz"):
+    def __make_single_folder(self, num_samples=1, pattern="R%d_%d_trimmed.fq.gz", readnum=1):
         for i in range(1, num_samples + 1):
             dir = "inputdata/R%d" % i
             self.mem_fs.makedir(dir)
-            fname = pattern % (i, 1)
+            fname = pattern % (i, readnum)
             self.mem_fs.touch(fs.path.combine(dir, fname))
 
 
@@ -51,6 +51,15 @@ class TrimGaloreTest(unittest.TestCase):
             "/inputdata/R1", "gz", is_paired_end=False, rootfs=self.mem_fs)
         self.assertEqual("/inputdata/R1/R1_1_trimmed.fq.gz", first_pair_group)
         self.assertEqual("", second_pair_group)
+
+    def test_collect_trimmed_data_single_end_non_std(self):
+        """setup: 1 first pair file"""
+        self.__make_single_folder(readnum=3)
+        first_pair_group, second_pair_group = trim_galore.collect_trimmed_data(
+            "/inputdata/R1", "gz", is_paired_end=False, rootfs=self.mem_fs)
+        self.assertEqual("/inputdata/R1/R1_3_trimmed.fq.gz", first_pair_group)
+        self.assertEqual("", second_pair_group)
+
 
 if __name__ == '__main__':
     SUITE = []
