@@ -1,6 +1,11 @@
 Changes
 =======
 
+Version 0.2.3, 2023/04/18
+-------------------------
+
+  - find_files, can now find single reads without a read num pattern
+
 Version 0.2.2, 2023/04/13
 -------------------------
 
