@@ -2,7 +2,7 @@
 
 #############################################################
 ##### RNASeq Analysis Pipeline - SplAdder               #####
-##### Last update: 2023/03/01 by Yaqiao Li              #####
+##### Last update: 2023/03/31 by Yaqiao Li              #####
 ##### Institute for Systems Biology                     #####
 #############################################################
 import glob, sys, os, string, datetime, re, errno, time
@@ -202,6 +202,16 @@ def Check_Error_Report():
     cf.close()
     return cleanUp
 
+####################### Write Clean.sh  #####################################
+def Write_Clean():
+    cf = open('cleanUp.sh','w')
+    cf.write('#Remove temporary files\n\n')
+    for root, dirs, files in os.walk(spladder_out_dir):
+                for f in files:
+                    if f.endswith('pickle'):
+                        cf.write('rm ' + os.path.join(root, f) + '\n')
+    cf.close()
+
 ####################### Clean Up temporary files  ###############################
 def Clean_Up(spladder_out_dir):
     for root, dirs, files in os.walk(spladder_out_dir):
@@ -210,7 +220,7 @@ def Clean_Up(spladder_out_dir):
                 os.remove(os.path.join(root, f))
 
 ####################### Run SplAdder ############################################
-def run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, sampleType, args):
+def run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, sample_type, args):
     # Run create directories function to create directory structure
     create_dirs(spladder_work_dir, spladder_out_dir, parsed_event_dir)
     
@@ -301,14 +311,14 @@ one_ldf$spec <- c("'''
 #write out the results as one table
 write.table(one_ldf, paste0("'''
 
-    if(sampleType == 'host'):
+    if(sample_type == 'host'):
         strR4 = parsed_event_dir + '/host_all_events'
-    elif(sampleType == 'sym'):
+    elif(sample_type == 'sym'):
         strR4 = parsed_event_dir + '/sym_all_events'
     else:
         strR4 = parsed_event_dir + '/other_all_events'
     strR5 = r'",var1,const,"_vs_",var2,const,".tsv"), quote = F, row.names = F)'
-    strR = strR1 + strR2 + strR3 + sampleType + strR3_1 + strR4 + strR5 + '\n'
+    strR = strR1 + strR2 + strR3 + sample_type + strR3_1 + strR4 + strR5 + '\n'
     parseR = open(parseRscript, 'w')
     parseR.write(strR)
     parseR.close()
@@ -330,12 +340,14 @@ write.table(one_ldf, paste0("'''
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=DESCRIPTION)
-    parser.add_argument('-w', '--WorkDir', help='work directory')
-    parser.add_argument('-i', '--inputBamFileList', help='input .bam file name list')
-    parser.add_argument('-a', '--genomeAnnotation', help='genome GFF/GTF file')
-    parser.add_argument('-c', '--allContrasts', help='sample contrasts information: all_contrasts.txt')
-    parser.add_argument('-d', '--contrastDir', help='sample contrasts information: contrast_file')
-    parser.add_argument('-s', '--sampleType', help='sample is host or symbiont or Other')
+    #parser.add_argument('WorkDir', type=str, help='work directory')
+    parser.add_argument('-w', '--WorkDir', type=str, help='work directory')
+    parser.add_argument('-i', '--inputBamFileList',  type=str, help='input .bam file name list')
+    parser.add_argument('-a', '--genomeAnnotation',  type=str, help='genome GFF/GTF file')
+    parser.add_argument('-c', '--allContrasts',  type=str, help='sample contrasts information: all_contrasts.txt')
+    parser.add_argument('-d', '--contrastDir',  type=str, help='sample contrasts information: contrast_file')
+    parser.add_argument('-s', '--sampleType',  type=str, help='sample is host or symbiont or Other')
+    #parser.add_argument('-s', '--sampleType',  type=str, help='sample is host or symbiont or Other', default='host')
     
     args = parser.parse_args()
     
@@ -344,38 +356,42 @@ if __name__ == '__main__':
     genome_annotation = args.genomeAnnotation
     all_contrasts = args.allContrasts
     contrast_dir = args.contrastDir
-    sampleType = args.sampleType
+    sample_type = args.sampleType
     
-    spladder_work_dir = work_dir + '/' + sampleType + '_spladder_jobs'
-    spladder_out_dir = work_dir + '/' + sampleType + '_spladder_jobs' + '/array_spladder_out'
-    if sampleType == 'host' or sampleType == 'sym':
+    spladder_work_dir = work_dir + '/' + sample_type + '_spladder_jobs'
+    spladder_out_dir = work_dir + '/' + sample_type + '_spladder_jobs' + '/array_spladder_out'
+    if sample_type == 'host' or sample_type == 'sym':
         parsed_event_dir = work_dir + '/host_sym_parsed_event_files'
     else:
-        parsed_event_dir = work_dir + '/' + sampleType + '_parsed_event_files'
+        parsed_event_dir = work_dir + '/' + sample_type + '_parsed_event_files'
 
     errOut = open('ErrorReport.txt','w')
     starttime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     errOut.write('Start: ' + starttime + '\n\n')
     errOut.close()
-    run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, sampleType, args)
+    run_spladder(spladder_work_dir, spladder_out_dir, parsed_event_dir, input_bam_list, genome_annotation, all_contrasts, contrast_dir, sample_type, args)
     errOut = open('ErrorReport.txt','a')
     endtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     errOut.write('\nEnd: ' + endtime + '\n\n')
     errOut.close()
     
     # check errors
-    cleanUp = Check_Error_Report()
+    #cleanUp = Check_Error_Report()
     
+
+    # write clean.sh
+    Write_Clean()
+
     # clean up
-    errOut = open('ErrorReport.txt','a')
-    if cleanUp:
-        Clean_Up(spladder_out_dir)
-        cleantime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        errOut.write('\nCleanedUp: ' + cleantime + '\n\n')
-    else:
-        cleantime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        errOut.write('\nCan not cleanedUp: ' + cleantime + '\n\n')     
-    errOut.close()
+    #errOut = open('ErrorReport.txt','a')
+    #if cleanUp:
+    #    Clean_Up(spladder_out_dir)
+    #    cleantime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    #    errOut.write('\nCleanedUp: ' + cleantime + '\n\n')
+    #else:
+    #    cleantime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    #    errOut.write('\nCan not cleanedUp: ' + cleantime + '\n\n')     
+    #errOut.close()
 
 
 
