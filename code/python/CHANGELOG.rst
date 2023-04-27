@@ -1,6 +1,11 @@
 Changes
 =======
 
+Version 0.2.4, 2023/04/18
+-------------------------
+
+  - collect_trimmed_files() now finds single trimmed reads without specific number
+
 Version 0.2.3, 2023/04/18
 -------------------------
 
