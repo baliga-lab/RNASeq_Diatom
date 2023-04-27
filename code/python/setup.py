@@ -9,7 +9,7 @@ DESCRIPTION = 'globalsearch is a collection of Python modules and command tools 
 LICENSE = 'LGPL V3'
 URI = 'https://github.com/baliga-lab/Global_Search'
 AUTHOR = 'Wei-ju Wu'
-VERSION = '0.2.4'
+VERSION = '0.2.5'
 
 KEYWORDS = ['global search', 'coral reef']
 
