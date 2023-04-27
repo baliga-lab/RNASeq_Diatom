@@ -116,7 +116,7 @@ def dedup(results_dir,folder_name):
 
     # Remove marked duplicates withh samtools
     print('Samtools  STAR Dedup Remove run command:%s' % rmsingletonsSTAR_cmd, flush=True)
-    compl_proc = subprocess.run(rmsingletonSTAR_command, check=True, capture_output=False, cwd=results_dir)
+    compl_proc = subprocess.run(rmsingletonsSTAR_command, check=True, capture_output=False, cwd=results_dir)
 
     # Remove marked duplicates withh samtools
     print('Samtools  Collate reads by read name run command:%s' % collatereadsSTAR_cmd, flush=True)
