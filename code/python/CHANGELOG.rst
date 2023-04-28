@@ -1,6 +1,16 @@
 Changes
 =======
 
+Version 0.2.7, 2023/04/28
+-------------------------
+
+  - bugfix: run SAMtools in shell environment for deduplication
+
+Version 0.2.6, 2023/04/27
+-------------------------
+
+  - bugfix: run SAMtools as joined string
+
 Version 0.2.5, 2023/04/27
 -------------------------
 
