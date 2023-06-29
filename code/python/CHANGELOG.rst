@@ -1,6 +1,11 @@
 Changes
 =======
 
+Version 0.2.8, 2023/06/29
+-------------------------
+
+  - update: kallisto pipeline now integrates file finder
+
 Version 0.2.7, 2023/04/28
 -------------------------
 

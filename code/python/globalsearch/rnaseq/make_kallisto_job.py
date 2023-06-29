@@ -22,7 +22,7 @@ data_folder=${data_folders[$SLURM_ARRAY_TASK_ID]}
 
 {{sbatch_extras}}
 
-python3 -m globalsearch.rnaseq.run_kallisto {{genome_dir}} {{input_dir}} $data_folder {{genome_fasta}} {{output_dir}}
+python3 -m globalsearch.rnaseq.run_kallisto {{fastq_patterns}} {{genome_dir}} {{input_dir}} $data_folder {{genome_fasta}} {{output_dir}}
 """
 
 DESCRIPTION = """make_kallisto_job.py - Create Kallisto job file for Slurm"""
@@ -57,6 +57,7 @@ if __name__ == '__main__':
 
     data_folders = rnaseq_data_folder_list(config)
     config["data_folders"] = ' '.join(data_folders)
+    config['fastq_patterns'] = '--fastq_patterns "%s"' % ','.join(config['fastq_patterns']) if len(config['fastq_patterns']) > 0 else ''
 
     # Array specification
     try:

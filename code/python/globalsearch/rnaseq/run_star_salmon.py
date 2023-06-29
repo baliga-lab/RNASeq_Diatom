@@ -202,7 +202,8 @@ def run_pipeline(data_folder, results_folder, genome_dir, genome_fasta, args):
         else:
             file_ext = fastq_fname.split('.')[-1]
 
-        print('\033[32m Processing File: %s of %s ("%s")\033[0m' % (file_count, len(pair_files), first_pair_file),
+        print('\033[32m Processing file set: %s of %s (first is "%s")\033[0m' % (file_count, len(pair_files),
+                                                                                 first_pair_file),
               flush=True)
 
         # Collect Sample attributes
