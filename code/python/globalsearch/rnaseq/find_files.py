@@ -112,7 +112,6 @@ def find_fastq_files_experimental(data_folder, pattern1=DATA_SEARCH1, pattern2=D
     logger = logging.getLogger("rnaseq")
 
     # Get the list of first file names in paired end sequences
-    print("SEARCHING FIRST PAIRS IN: ", pattern)
     # Search first set of folders
     first_pair_files1 = glob.glob(data_folder + pattern1, recursive=True)
     # search additional folders if there are different levels
@@ -122,7 +121,7 @@ def find_fastq_files_experimental(data_folder, pattern1=DATA_SEARCH1, pattern2=D
     first_pair_files = first_pair_files1 + first_pair_files2
 
     if len(first_pair_files) == 0:
-        logger.error("Error: I didnt find any file with '*fastq*' extension in %s\n" %(folder_name))
+        logger.error("Error: I didnt find any file with '*fastq*' extension in %s\n" % (data_folder))
 
     """
     # Program specific results directories
