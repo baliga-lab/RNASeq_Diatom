@@ -7,7 +7,7 @@
 This project manages all the software components related to the
 Coral Reef Global Search project.
 
-## Current pipeine tools
+## Current pipeline tools
 
 ```gs_submit <config-file>```
 
@@ -46,6 +46,7 @@ Configuration files are in JSON format of the following form
 
 ```
 {
+  "organisms": [<organism 1>, ...],
   "input_dir": <input directory>,
   "genome_dir": <genome file directory>,
   "output_dir": <output directory>,
