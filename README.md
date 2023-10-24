@@ -1,5 +1,7 @@
 # Global Search Code Repository
 
+![Python Tests](https://github.com/baliga-lab/Global_Search/actions/workflows/python-package.yml/badge.svg)
+
 ## Description
 
 This project manages all the software components related to the
