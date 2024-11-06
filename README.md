@@ -1,4 +1,4 @@
-# Global Search Code Repository
+# RNASeq Diatom Code Repository
 
 ![Python Tests](https://github.com/baliga-lab/Global_Search/actions/workflows/python-package.yml/badge.svg)
 
